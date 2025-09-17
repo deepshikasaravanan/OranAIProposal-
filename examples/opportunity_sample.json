@@ -1,0 +1,13 @@
+{
+  "title": "Sample Cloud Modernization",
+  "agency": "GSA",
+  "naics": "541512",
+  "set_aside": "SB",
+  "type": "FFP",
+  "due_date": "2025-12-31",
+  "required_capabilities": ["cloud", "devops", "cyber"],
+  "org_capabilities": ["cloud", "devops"],
+  "vehicle_required": false,
+  "vehicle_held": true,
+  "estimated_value_ok": true
+}

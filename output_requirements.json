@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "source": "examples/pws_sample.md"
+  },
+  "shalls": [
+    {
+      "id": "c7a15b5025",
+      "section": "",
+      "text": "The Contractor **shall** provide program management, reporting, and governance to support OCDAO initiatives.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "b7cdc23c07",
+      "section": "",
+      "text": "The Contractor **shall** maintain a bi-weekly sprint cadence and report burndown metrics.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "0a1fa318e1",
+      "section": "",
+      "text": "The Contractor **shall** propose a standardized, cyber-hardened platform with reusable assets.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "361d5f71bb",
+      "section": "",
+      "text": "The Contractor **shall** evaluate COTS and GOTS tools and provide adoption recommendations.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "0618d93a4c",
+      "section": "",
+      "text": "The Contractor **shall** design and operate data pipelines and ingestion patterns that support ML adoption.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "114f51d97a",
+      "section": "",
+      "text": "The Contractor **shall** create governance artifacts and conduct RAI tabletop exercises.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "a3b4f666bc",
+      "section": "",
+      "text": "The Contractor **shall** develop a competency model and training playbooks.",
+      "priority": null,
+      "citations": []
+    },
+    {
+      "id": "f202c68c86",
+      "section": "",
+      "text": "The Contractor **shall** provide calendar, correspondence, and tasking support with service levels.",
+      "priority": null,
+      "citations": []
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Proposal Bot</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <h1>Proposal Bot <span class="tag">beta</span></h1>
+        <nav>
+          <a href="#ingest">Ingest</a>
+          <a href="#results">Outputs</a>
+          <a href="#brand">Branding</a>
+        </nav>
+      </div>
+    </header>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero-inner">
+        <h1 class="hero-title">Accelerate Federal Proposals with AI Assist</h1>
+        <p class="hero-sub">Ingest dense solicitations, extract requirements, score the pursuit, and auto-draft a branded proposal—all in one lightweight workspace.</p>
+        <div class="hero-actions">
+          <a href="#ingest" class="cta primary">Get Started</a>
+          <a href="#features" class="cta ghost">Explore Features</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Grid similar to reference screenshot -->
+    <section class="features" id="features">
+      <h2>Platform Capabilities</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="icon">🤖</div>
+          <h3>AI GovCon Agent</h3>
+          <p>Turns 200+ page PDFs into navigable sections, distilled requirements, and actionable guidance.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">🔍</div>
+          <h3>Smart Opportunity Match</h3>
+          <p>Ranks and scores opportunities using enrichment (SAM + USAspending) with compliance and fit heuristics.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📝</div>
+          <h3>Proposal Writer</h3>
+          <p>Expands structured outlines &amp; requirements coverage into narrative draft sections aligned to shalls.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📊</div>
+          <h3>Pursuit Management</h3>
+          <p>Scoring outputs expose blockers, next actions, competitor signals, and value alignment for BD reviews.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📁</div>
+          <h3>Document Hub</h3>
+          <p>Normalizes mixed-source inputs (ZIP, PDF, DOCX, MD) and materializes assets for traceability & audit.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">🤝</div>
+          <h3>Teaming Insights</h3>
+          <p>Surfacing incumbent &amp; competitor density heuristics to inform teaming or positioning early.</p>
+        </article>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel" id="ingest">
+        <h2>1. Upload Source</h2>
+        <form id="form" class="stack">
+          <div class="field">
+            <label>PWS / SoW (pdf, docx, md, txt) <span class="req">*</span></label>
+            <input type="file" name="pws" required />
+          </div>
+          <div class="field">
+            <label>RFP YAML (optional)</label>
+            <input type="file" name="rfp" />
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Company Name</label>
+              <input type="text" name="company" placeholder="Acme Federal" />
+            </div>
+            <div class="field">
+              <label>Tagline / Header Right</label>
+              <input type="text" name="tagline" placeholder="Mission Delivery" />
+            </div>
+          </div>
+          <button type="submit" class="primary">Generate Proposal</button>
+        </form>
+        <div class="progress" id="progress" hidden>
+          <div class="bar" id="bar"></div>
+          <span id="progress-text">Processing…</span>
+        </div>
+      </section>
+
+      <section class="panel" id="results">
+        <h2>2. Results</h2>
+        <div class="outputs" id="links"></div>
+        <details open class="raw">
+          <summary>Raw JSON</summary>
+          <pre id="out" class="code-block">Upload a document to see structured output.</pre>
+        </details>
+      </section>
+
+      <section class="panel" id="brand">
+        <h2>3. Branding</h2>
+        <form id="logoForm" class="stack inline">
+          <div class="field">
+            <label>Logo (PNG/JPG)</label>
+            <input type="file" name="logo" accept="image/*" />
+          </div>
+          <button type="submit">Upload Logo</button>
+        </form>
+        <button id="brandDebug" class="ghost">Show Brand Debug</button>
+        <pre id="brandInfo" class="code-block" hidden></pre>
+      </section>
+    </main>
+    <section class="pricing" id="pricing">
+      <h2>Pricing</h2>
+      <p class="pricing-sub">Flexible plans that scale with your federal capture & proposal velocity.</p>
+      <div id="pricingGrid" class="pricing-grid" aria-live="polite"></div>
+    </section>
+    <footer class="site-footer">&copy; <span id="year"></span> Proposal Bot – auto-drafted content preview.</footer>
+
+    <script>
+      const form = document.getElementById('form');
+      const out = document.getElementById('out');
+      const links = document.getElementById('links');
+      const progress = document.getElementById('progress');
+      const bar = document.getElementById('bar');
+      const progressText = document.getElementById('progress-text');
+      const companyInput = form.querySelector('input[name=company]');
+      const taglineInput = form.querySelector('input[name=tagline]');
+
+      function fakeProgress() {
+        let pct = 5;
+        progress.hidden = false;
+        bar.style.width = pct + '%';
+        const id = setInterval(() => {
+          pct = Math.min(95, pct + Math.random()*8);
+            bar.style.width = pct.toFixed(1) + '%';
+        }, 300);
+        return () => { clearInterval(id); bar.style.width = '100%'; setTimeout(()=> progress.hidden = true, 600); };
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        links.innerHTML = '';
+        out.textContent = 'Uploading & processing…';
+        const stop = fakeProgress();
+        const fd = new FormData(form);
+        // Pass branding inputs via temporary env override endpoint? For now attach to form (backend may ignore if unsupported)
+        if (companyInput.value) fd.append('brand_company', companyInput.value);
+        if (taglineInput.value) fd.append('brand_tagline', taglineInput.value);
+        try {
+          const res = await fetch('/process', { method: 'POST', body: fd });
+          const data = await res.json();
+          out.textContent = JSON.stringify(data, null, 2);
+          if (data.outputs) {
+            const makeLink = (label, path) => `<a class="chip" href="/download?path=${encodeURIComponent(path)}" target="_blank" rel="noopener">${label}</a>`;
+            const order = [
+              ['Proposal DOCX','docx'],
+              ['Requirements JSON','requirements'],
+              ['Outlines JSON','outlines'],
+              ['Flowchart PNG','flowchart'],
+              ['Gantt PNG','gantt']
+            ];
+            links.innerHTML = order.map(([label,key]) => data.outputs[key] && makeLink(label, data.outputs[key])).filter(Boolean).join('');
+          }
+        } catch (err) {
+          out.textContent = 'Error: ' + err;
+        } finally {
+          stop();
+        }
+      });
+
+      const logoForm = document.getElementById('logoForm');
+      logoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(logoForm);
+        const file = fd.get('logo');
+        if (!file || (file && file.size === 0)) { alert('Choose a file'); return; }
+        const res = await fetch('/api/brand/logo-upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        alert(data.saved ? `Logo saved to ${data.saved}. New docs will include it.` : 'Upload failed');
+      });
+
+      document.getElementById('brandDebug').addEventListener('click', async () => {
+        const pre = document.getElementById('brandInfo');
+        if (!pre.hidden) { pre.hidden = true; return; }
+        const res = await fetch('/api/brand/debug');
+        const data = await res.json();
+        pre.textContent = JSON.stringify(data, null, 2);
+        pre.hidden = false;
+      });
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // --- Pricing dynamic fetch ---
+      async function loadPricing(){
+        try {
+          const res = await fetch('/api/pricing');
+          if(!res.ok) return;
+          const data = await res.json();
+          const grid = document.getElementById('pricingGrid');
+          grid.innerHTML = data.tiers.map(t => pricingCard(t)).join('');
+        } catch(e){ /* silent */ }
+      }
+      function pricingCard(t){
+        const badge = t.highlight ? `<div class="plan-badge">✨ Most Popular</div>` : '';
+        const price = t.contact ? `<div class="plan-price contact">Contact Us</div>` : `<div class="plan-price"><span class="amt">$${t.price_month}</span><span class="per">/month</span></div>`;
+        const trial = t.trial ? `<div class="trial">${t.trial}</div>` : '';
+        return `<article class="plan ${t.highlight? 'highlight':''}" data-plan="${t.id}">
+          ${badge}
+          <h3>${t.name}</h3>
+          <p class="tagline">${t.tagline}</p>
+          ${trial}
+          ${price}
+          <ul class="features">${t.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+          <button class="plan-cta">${t.contact? 'Contact Sales':'Start Trial'}</button>
+        </article>`;
+      }
+      loadPricing();
+    </script>
+  </body>
+</html>
