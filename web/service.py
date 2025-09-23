@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 from datetime import datetime
 from typing import Optional
@@ -9,7 +10,7 @@ from prop.utils import write_json
 # (Removed unused imports RequirementGraph, Outlines)
 from prop.generator_narrative import draft_outlines
 from prop.postprocess import ensure_proposal_development_steps
-from prop.generator_diagram import render_flowchart, render_gantt
+from prop.generator_diagram import render_gantt
 from prop.compliance import build_matrix, build_compliance_matrix
 from prop.builder_docx import build_docx
 
@@ -27,6 +28,8 @@ def _save_upload(upload: UploadFile, folder: str) -> str:
     return path
 
 async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
+    t0 = time.time()
+    timings = {}
     run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:8]
     run_dir = os.path.join(OUT_DIR, run_id)
     os.makedirs(run_dir, exist_ok=True)
@@ -38,33 +41,28 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
         rfp_path = _save_upload(rfp, run_dir)
 
     # 1) Parse
+    t = time.time()
     rg = parse_pws(pws_path)
+    timings["parse"] = round(time.time() - t, 2)
     reqs_json = os.path.join(run_dir, "requirements.json")
     write_json(reqs_json, rg.model_dump())
 
-    # 2) Visualize flow
-    flow_png = os.path.join(run_dir, "pipeline.png")
-    steps = [
-        ("PWS/SoW", "Parser"),
-        ("Parser", "Requirements Graph"),
-        ("Requirements Graph", "Compliance Matrix"),
-        ("Requirements Graph", "Outlines"),
-        ("Outlines", "DOCX Builder"),
-        ("Compliance Matrix", "DOCX Builder"),
-        ("DOCX Builder", "Proposal DOCX/PDF")
-    ]
-    render_flowchart(steps, flow_png)
+    # 2) Flowchart generation removed per request
 
     # 3) Draft outlines
+    t = time.time()
     outlines = draft_outlines(rg)
     outlines = ensure_proposal_development_steps(outlines)
+    timings["outline"] = round(time.time() - t, 2)
     outlines_json = os.path.join(run_dir, "outlines.json")
     write_json(outlines_json, outlines.model_dump())
 
     # 4) Gantt (optional)
     gantt_png = None
+    rulebook = None
     if rfp_path:
         import yaml
+        t = time.time()
         data = yaml.safe_load(open(rfp_path, "r", encoding="utf-8"))
         deliverables = data.get("deliverables", [])
         tasks = []
@@ -75,10 +73,23 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
             tasks.append((label, start, duration))
         gantt_png = os.path.join(run_dir, "gantt.png")
         render_gantt(tasks, gantt_png)
+        timings["gantt"] = round(time.time() - t, 2)
+        # Load rulebook if present in the uploaded yaml (or a sidecar)
+        rulebook = data if isinstance(data, dict) else None
+    else:
+        # Fallback: try examples/ocdao_rulebook.yaml
+        try:
+            import yaml
+            rb_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples", "ocdao_rulebook.yaml")
+            if os.path.exists(rb_path):
+                rulebook = yaml.safe_load(open(rb_path, "r", encoding="utf-8"))
+        except Exception:
+            rulebook = None
 
     # 5) Compliance + build
+    t = time.time()
     matrix = build_matrix(rg, outlines)
-    images = [x for x in [flow_png, gantt_png] if x]
+    images = [x for x in [gantt_png] if x]
     # Capability compliance (Prompt 9) – placeholder: derive required capabilities from outlines? Currently none.
     outline_titles = [it.title or it.section for it in outlines.items]
     required_caps: list[str] = []  # Future: feed from parsing or user input
@@ -99,7 +110,10 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
         rg, outlines, matrix, images, docx_path,
         mermaid_diagrams=mermaid_diagrams,
         capability_compliance=capability_compliance,
+        rulebook=rulebook,
     )
+    timings["docx"] = round(time.time() - t, 2)
+    timings["total"] = round(time.time() - t0, 2)
 
     # Build simple coverage report for Section 6 key phrases
     check_phrases = [
@@ -116,11 +130,16 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
         "outputs": {
             "requirements": reqs_json,
             "outlines": outlines_json,
-            "flowchart": flow_png,
+            # flowchart removed
             "gantt": gantt_png,
             "docx": docx_path,
             "capability_compliance_csv": capability_csv,
         },
+        "counts": {
+            "shalls": len(rg.shalls),
+            "outline_items": len(outlines.items),
+        },
+        "timings": timings,
         "section6_coverage": coverage,
     }
 

@@ -2,6 +2,7 @@ import os
 import base64
 import tempfile
 from docx import Document
+from typing import Optional, List, Dict
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from .schema import RequirementGraph, Outlines, ComplianceMatrix
@@ -25,7 +26,8 @@ def _apply_branding(doc: Document):
     Footer: required disclaimer centered across every page.
     """
     # Resolve a usable logo file (supports PATH, URL, or base64)
-    def _resolve_logo_file() -> str | None:
+    from typing import Optional
+    def _resolve_logo_file() -> Optional[str]:
         # 1) Base64 env
         b64 = os.environ.get("ORAN_LOGO_B64")
         if b64:
@@ -141,14 +143,38 @@ def _apply_heading_colors(doc: Document):
             continue
 
 
+def _add_table(doc: Document, headers: List[str]):
+    """Create a styled table with header row and return it."""
+    tbl = doc.add_table(rows=1, cols=len(headers))
+    try:
+        tbl.style = "Light Grid Accent 1"
+    except Exception:
+        pass
+    hdr = tbl.rows[0].cells
+    for i, h in enumerate(headers):
+        hdr[i].text = h
+    return tbl
+
+
+def _extract_label_map(bullets: list[str]) -> dict[str, list[str]]:
+    label_map: dict[str, list[str]] = {}
+    for b in (bullets or []):
+        if isinstance(b, str) and b.startswith("[") and "]" in b:
+            label, rest = b.split("]", 1)
+            label = label.strip("[] ")
+            label_map.setdefault(label, []).append(rest.strip())
+    return label_map
+
+
 def build_docx(
     reqs: RequirementGraph,
     outlines: Outlines,
     matrix: ComplianceMatrix,
     image_paths: list,
     out_path: str,
-    mermaid_diagrams: list[str] | None = None,
-    capability_compliance: list[dict] | None = None,
+    mermaid_diagrams: Optional[List[str]] = None,
+    capability_compliance: Optional[List[Dict]] = None,
+    rulebook: Optional[Dict] = None,
 ):
     doc = Document()
     _apply_heading_colors(doc)
@@ -163,10 +189,180 @@ def build_docx(
     doc.add_page_break()
 
     doc.add_paragraph("Table of Contents (update in Word: References → Table of Contents)")
+    # Add ToC extras per user's ToC preference
+    doc.add_heading("LIST OF FIGURES", level=1)
+    doc.add_paragraph("[Insert automatic list of figures in Word]")
+    doc.add_heading("LIST OF TABLES", level=1)
+    doc.add_paragraph("[Insert automatic list of tables in Word]")
+    doc.add_heading("ACRONYMS AND ABBREVIATIONS", level=1)
+    doc.add_paragraph("")
 
     doc.add_heading("Executive Summary", level=1)
     doc.add_paragraph("This document was assembled automatically based on extracted requirements and generated outlines.")
 
+    # Pre-compute shall lookup
+    shall_by_id = {s.id: s for s in getattr(reqs, "shalls", [])}
+
+    # Writing Assignments Matrix up front
+    doc.add_heading("WRITING ASSIGNMENTS MATRIX", level=1)
+    doc.add_paragraph(
+        "Live tracker: assign Author/SME and Due. Word Target uses words/page from ORAN_WORDS_PER_PAGE (default 425)."
+    )
+    words_per_page = 425
+    try:
+        wpp_env = int(os.environ.get("ORAN_WORDS_PER_PAGE", "425"))
+        if 200 <= wpp_env <= 800:
+            words_per_page = wpp_env
+    except Exception:
+        pass
+
+    # Prepare items: keep any 'Overview' first, then sort remaining by section numeric key if available
+    def _sec_sort_key(title: str) -> tuple:
+        import re
+        m = re.search(r"(\d+(?:\.\d+)*)", title)
+        if not m:
+            return (9999,)
+        parts = tuple(int(x) for x in m.group(1).split("."))
+        return parts
+
+    items = list(outlines.items)
+    overview = [it for it in items if (it.title or it.section).lower().startswith("response overview")]
+    others = [it for it in items if it not in overview]
+    others.sort(key=lambda it: _sec_sort_key((it.title or it.section)))
+    ordered = overview + others
+
+    wa = _add_table(doc, ["Section", "Page Budget", "Word Target", "Shalls", "Author", "SME", "Due", "Status"])
+
+    # Enhance header styling and column alignment/widths
+    try:
+        wa.autofit = True
+        # Repeat header row on new pages
+        wa.rows[0].repeat_header = True  # type: ignore[attr-defined]
+        # Shade header
+        from docx.oxml import OxmlElement
+        from docx.oxml.ns import qn
+        for cell in wa.rows[0].cells:
+            tcPr = cell._tc.get_or_add_tcPr()
+            shd = OxmlElement('w:shd')
+            shd.set(qn('w:fill'), 'D9E1F2')  # light blue fill
+            tcPr.append(shd)
+    except Exception:
+        pass
+
+    # Fill rows with zebra striping and alignment
+    # Rulebook-driven owners/supporting and budgets
+    owners = (rulebook or {}).get("owners", {}) if isinstance(rulebook, dict) else {}
+    supporting = (rulebook or {}).get("supporting", {}) if isinstance(rulebook, dict) else {}
+    task_budgets = ((rulebook or {}).get("budgets", {}) or {}).get("tasks", {}) if isinstance(rulebook, dict) else {}
+    gaps = set(((rulebook or {}).get("gap_sections", []) or []) if isinstance(rulebook, dict) else [])
+
+    def _root_sec(sec: str) -> str:
+        import re
+        m = re.match(r"^(\d+\.\d+)", sec or "")
+        return m.group(1) if m else (sec.split()[0] if sec else "")
+
+    for idx, it in enumerate(ordered, start=1):
+        row = wa.add_row().cells
+        title = it.title or it.section
+        # Normalize 'Response to Section X' look
+        if title.lower().startswith("response ") and "section" not in title.lower() and getattr(it, 'section', ''):
+            title = f"Response to Section {getattr(it, 'section', '')}"
+        sec = getattr(it, 'section', '') or ''
+        root = _root_sec(sec)
+        pb = float((task_budgets.get(root) if task_budgets.get(root) is not None else getattr(it, "page_budget", 1.0)) or 1.0)
+        word_target = int(round(pb * words_per_page))
+        shall_count = len(getattr(it, "related_shalls", []) or [])
+
+        row[0].text = title
+        row[1].text = f"{pb:.1f}"
+        row[2].text = str(word_target)
+        row[3].text = str(shall_count)
+        row[4].text = str(owners.get(root, ""))
+        row[5].text = str(supporting.get(root, ""))
+        row[6].text = ""
+        row[7].text = ("Gap" if root in gaps else "Draft")
+
+        # Alignment for numeric columns
+        try:
+            for ci in (1, 2, 3):
+                for p in row[ci].paragraphs:
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        except Exception:
+            pass
+
+        # Zebra fill every other row
+        try:
+            if idx % 2 == 0:
+                from docx.oxml import OxmlElement
+                from docx.oxml.ns import qn
+                for cell in wa.rows[idx].cells:
+                    tcPr = cell._tc.get_or_add_tcPr()
+                    shd = OxmlElement('w:shd')
+                    shd.set(qn('w:fill'), 'EDF2FB')  # very light blue
+                    tcPr.append(shd)
+        except Exception:
+            pass
+
+    # Ensure a 'Proposal Development Plan' row exists at the end
+    titles = {(it.title or it.section).strip().lower() for it in ordered}
+    if "proposal development plan" not in titles:
+        row = wa.add_row().cells
+        row[0].text = "Proposal Development Plan"
+        row[1].text = f"{1.0:.1f}"
+        row[2].text = str(int(round(1.0 * words_per_page)))
+        row[3].text = "0"
+        row[4].text = row[5].text = row[6].text = ""
+        row[7].text = "Draft"
+
+    # Control Tables (Additional)
+    doc.add_heading("Control Tables (Additional)", level=1)
+    doc.add_heading("Deliverables", level=2)
+    dt = _add_table(doc, ["Deliverable_Name (exact)", "PWS_Ref", "Cadence", "Format", "Owner", "Acceptance"])
+    for it in outlines.items:
+        label_map = _extract_label_map(it.bullets)
+        pws_ref = ", ".join(sorted({getattr(shall_by_id.get(sid), 'section', '') for sid in it.related_shalls if shall_by_id.get(sid)}))
+        for d in label_map.get("Deliverables", []) or []:
+            row = dt.add_row().cells
+            row[0].text = d
+            row[1].text = pws_ref
+            row[2].text = ""
+            row[3].text = ""
+            row[4].text = it.title or it.section
+            row[5].text = ""
+
+    # Risk Register (pair Risks with Mitigations when possible)
+    doc.add_heading("Risk Register", level=2)
+    rr = _add_table(doc, ["Risk", "Likelihood", "Impact", "Mitigation", "Owner", "Trigger"])
+    for it in outlines.items:
+        label_map = _extract_label_map(it.bullets)
+        risks = label_map.get("Risks", []) or []
+        mits = label_map.get("Mitigations", []) or []
+        for idx, rsk in enumerate(risks):
+            row = rr.add_row().cells
+            row[0].text = rsk
+            row[1].text = "Med"
+            row[2].text = "Med"
+            row[3].text = mits[idx] if idx < len(mits) else (mits[0] if mits else "")
+            row[4].text = it.title or it.section
+            row[5].text = ""
+
+    # Crosswalk (Requirement -> Addressed In)
+    doc.add_heading("Crosswalk", level=2)
+    cw = _add_table(doc, ["Requirement", "Addressed_In (page/para)", "Owner", "Gap/Notes"])
+    # Build coverage map from compliance matrix
+    cov = {}
+    for r in matrix.rows:
+        cov[r.shall_id] = r.covered_by[:]
+    for s in getattr(reqs, "shalls", []):
+        row = cw.add_row().cells
+        req_text = s.text.strip()
+        row[0].text = req_text[:240] + ("…" if len(req_text) > 240 else "")
+        addressed = (cov.get(s.id) or [])
+        row[1].text = ", ".join(addressed[:2])  # section titles
+        row[2].text = ""
+        row[3].text = "Covered" if addressed else "Gap"
+
+    # Figures (flowchart/gantt) if present
     if image_paths:
         doc.add_heading("Figures", level=1)
         for p in image_paths:
@@ -198,27 +394,21 @@ def build_docx(
                 except Exception as e:
                     doc.add_paragraph(f"[Mermaid render error: {e}]")
 
-    # Enforce a 35-page limit by using page budgets from outlines
-    max_pages = 35.0
+    # Enforce a 40-page limit by using page budgets from outlines (target 35–40 pages)
+    max_pages = 40.0
     used_pages = 0.0
 
     doc.add_heading("Technical Approach & Methodology", level=1)
-    # Build a quick lookup for shall details
-    shall_by_id = {s.id: s for s in getattr(reqs, "shalls", [])}
+    # shall_by_id built above
     for item in outlines.items:
         if used_pages + (item.page_budget or 0.0) > max_pages:
             doc.add_paragraph(
-                "Remaining sections omitted to keep proposal within the 35-page limit.")
+                "Remaining sections omitted to keep proposal within the 40-page cap (target 35–40).")
             break
 
         doc.add_heading(item.title or item.section, level=2)
         # Extract labeled bullets to a map
-        label_map = {}
-        for b in (item.bullets or []):
-            if b.startswith("[") and "]" in b:
-                label, rest = b.split("]", 1)
-                label = label.strip("[] ").strip()
-                label_map.setdefault(label, []).append(rest.strip())
+        label_map = _extract_label_map(item.bullets)
 
         # 1) Section Summary table (Label / Details)
         if label_map:

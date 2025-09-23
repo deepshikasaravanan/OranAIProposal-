@@ -11,6 +11,12 @@ import json
 from pathlib import Path
 import typer
 import requests
+from docx import Document
+
+try:
+    from .builder_cover import build_cover_page
+except Exception:  # pragma: no cover - soft import for early environments
+    build_cover_page = None  # type: ignore
 
 APP = typer.Typer(add_completion=False, help="Proposal Bot CLI")
 
@@ -69,6 +75,30 @@ def score(
     else:
         card = data.get("Decision Card")
         typer.echo(json.dumps(card, indent=2))
+
+
+@APP.command()
+def cover(
+    json_path: Path = typer.Argument(..., exists=True, readable=True, help="Path to cover JSON (see examples/cover_sample.json)"),
+    output: Path = typer.Option(Path("cover.docx"), "--out", "-o", help="Output DOCX path"),
+):
+    """Generate a standalone cover page DOCX from JSON metadata."""
+    if build_cover_page is None:
+        typer.echo("[error] builder_cover module not available", err=True)
+        raise typer.Exit(code=3)
+    try:
+        data = json.loads(json_path.read_text())
+    except Exception as e:
+        typer.echo(f"[error] failed to read JSON: {e}", err=True)
+        raise typer.Exit(code=2)
+    doc = Document()
+    build_cover_page(doc, data)
+    try:
+        doc.save(str(output))
+    except Exception as e:
+        typer.echo(f"[error] failed to save DOCX: {e}", err=True)
+        raise typer.Exit(code=4)
+    typer.echo(f"[ok] cover written to {output}")
 
 
 def main():  # pragma: no cover

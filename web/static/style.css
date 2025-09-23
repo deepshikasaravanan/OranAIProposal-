@@ -1,14 +1,46 @@
 body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f3f5f8; margin:0; color:#1b2430; }
 .hero { padding:80px 24px 40px; text-align:center; background:linear-gradient(135deg,#0d1b33,#152a4d 55%,#1e3a6d); color:#fff; position:relative; overflow:hidden; }
+.hero.centered { text-align:center; padding:110px 24px 90px; }
 .hero:before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 70% 30%, rgba(255,255,255,0.12), transparent 60%); pointer-events:none; }
-.hero-inner { max-width:960px; margin:0 auto; position:relative; }
+.hero-inner { max-width:1200px; margin:0 auto; position:relative; }
+.split-grid { display:grid; gap:70px; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); align-items:center; }
+.hero-copy { max-width:560px; }
+.eyebrow { display:inline-block; font-size:13px; font-weight:600; letter-spacing:1px; background:#1d3761; padding:6px 12px 5px; border-radius:30px; margin-bottom:18px; color:#c8d6ea; }
 .hero-title { font-size:42px; line-height:1.1; margin:0 0 18px; letter-spacing:.5px; }
+.hero-title.big { font-size:54px; line-height:1.08; }
 @media (max-width:720px){ .hero-title { font-size:34px; } }
 .hero-sub { font-size:18px; line-height:1.45; margin:0 auto 26px; max-width:760px; color:#dde7f6; }
+.hero.split .hero-sub { margin:0 0 26px; max-width:620px; }
 .hero-actions { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+.hero-actions.left { justify-content:flex-start; }
+.hero-actions.center { justify-content:center; }
+.accent { color:#2d6cdf; }
+.accent-strong { color:#2d8bdf; }
+.hero-checklist { list-style:none; padding:0; margin:0 0 28px; display:flex; flex-direction:column; gap:10px; }
+.hero-checklist li { position:relative; padding-left:26px; font-size:15px; line-height:1.45; color:#d2e2f6; }
+.hero-checklist li:before { content:"✔"; position:absolute; left:0; top:0; color:#4fb86b; font-weight:600; }
+.hero-visual, .device-frame, .hero-upload { display:none !important; }
+/* Trust row and logos */
+.trust-row { margin:28px auto 10px; display:flex; align-items:center; gap:12px; justify-content:center; }
+.avatars { display:flex; }
+.avatar { width:34px; height:34px; border-radius:50%; background:#e1e9f8; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.2); margin-left:-8px; }
+.avatar:first-child { margin-left:0; }
+.logo-strip { display:flex; gap:34px; opacity:0.7; justify-content:center; align-items:center; margin:12px 0 10px; font-weight:700; letter-spacing:.5px; }
+.hero-badges { list-style:none; display:flex; gap:22px; justify-content:center; margin:18px 0 0; padding:0; color:#d8e4f8; font-weight:600; }
+.hero-badges li { display:flex; align-items:center; gap:8px; }
+.hero-badges li:before { content:""; width:8px; height:8px; border-radius:50%; background:#7cb6ff; display:inline-block; }
+.nav-flex { gap:34px; }
+.main-nav { display:flex; gap:30px; align-items:center; }
+.main-nav a { font-weight:500; }
+.nav-cta { display:flex; align-items:center; gap:22px; }
+.nav-cta .login-link { text-decoration:none; font-size:14px; font-weight:600; color:#cbd7e8; }
+.nav-cta .login-link:hover { color:#fff; }
+.cta.small { padding:10px 20px; font-size:14px; }
 .cta { text-decoration:none; font-weight:600; padding:14px 26px; border-radius:40px; font-size:15px; letter-spacing:.4px; transition:background .25s, color .25s, box-shadow .25s; }
 .cta.primary { background:#2d6cdf; color:#fff; box-shadow:0 4px 18px -4px rgba(45,108,223,.5); }
 .cta.primary:hover { background:#1f57c5; }
+.cta.primary.gradient { background:linear-gradient(135deg,#ff5b6a,#7b5dfa); box-shadow:0 10px 30px -10px rgba(123,93,250,0.6); }
+.cta.primary.gradient:hover { filter:brightness(1.05); }
 .cta.ghost { background:rgba(255,255,255,0.08); color:#fff; border:1px solid #4d6ea3; backdrop-filter:blur(4px); }
 .cta.ghost:hover { background:rgba(255,255,255,0.16); }
 
@@ -16,6 +48,7 @@ body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-seri
 .features > h2 { text-align:center; font-size:28px; margin:0 0 32px; letter-spacing:.5px; }
 .feature-grid { display:grid; gap:26px; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); }
 .feature-card { background:#fff; border-radius:18px; padding:24px 22px 26px; position:relative; box-shadow:0 4px 18px -6px rgba(30,49,78,0.15); display:flex; flex-direction:column; gap:10px; min-height:190px; }
+.feature-card { cursor:pointer; }
 .feature-card .icon { font-size:28px; line-height:1; }
 .feature-card h3 { margin:0; font-size:17px; letter-spacing:.4px; color:#13233b; }
 .feature-card p { margin:0; font-size:14px; line-height:1.45; color:#4a5d74; }
@@ -62,6 +95,12 @@ pre.code-block { background:#0b1020; color:#d6deff; padding:14px 16px; border-ra
 
 .site-footer { text-align:center; font-size:12px; padding:30px 16px 40px; color:#5a6d85; }
 
+/* Workbench visibility */
+.workbench[hidden] { display:none !important; }
+body.show-workbench #workbench { display:grid !important; }
+body.show-workbench .workbench { animation:fadeIn .4s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }
+
 /* Pricing */
 .pricing { padding:70px 24px 100px; max-width:1200px; margin:0 auto; }
 .pricing h2 { text-align:center; font-size:34px; margin:0 0 12px; }
@@ -83,6 +122,12 @@ pre.code-block { background:#0b1020; color:#d6deff; padding:14px 16px; border-ra
 .plan-cta { background:#2d6cdf; color:#fff; border:none; border-radius:14px; padding:14px 20px; font-size:15px; font-weight:600; cursor:pointer; box-shadow:0 4px 18px -4px rgba(45,108,223,0.5); }
 .plan-cta:hover { background:#1f57c5; }
 .plan-cta:active { transform:translateY(1px); }
+
+/* Summary metrics */
+.summary-cards { display:flex; flex-wrap:wrap; gap:14px; margin:0 0 18px; }
+.summary-cards .metric { background:#0d1b33; color:#fff; padding:14px 18px 12px; border-radius:14px; min-width:140px; box-shadow:0 4px 14px -4px rgba(13,27,51,.4); }
+.summary-cards .metric .val { font-size:20px; font-weight:700; line-height:1.1; letter-spacing:.5px; }
+.summary-cards .metric .lab { font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:.75; margin-top:4px; font-weight:600; }
 
 ::-webkit-scrollbar { width:10px; height:10px; }
 ::-webkit-scrollbar-track { background:transparent; }

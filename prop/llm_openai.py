@@ -1,21 +1,30 @@
 import os
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from openai import OpenAI
 
 
 class OpenAIClient:
-    """Thin wrapper around OpenAI Chat Completions with tool/function-calling and JSON/Schema mode."""
+    """Thin wrapper around OpenAI Chat Completions (JSON + simple helpers).
 
-    def __init__(self, model: str | None = None) -> None:
-        api_key = os.getenv(
-            "OPENAI_API_KEY",
-            "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",
-        )
+    Uses Optional[...] instead of PEP 604 unions for Python 3.9 compatibility.
+    Only the minimal methods currently used by generators are kept. If you
+    need tool calling again, re-introduce a guarded implementation.
+    """
+
+    def __init__(self, model: Optional[str] = None) -> None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise RuntimeError(
+                "OPENAI_API_KEY not set. Provide via environment; no default embedded."
+            )
+
         self.client = OpenAI(api_key=api_key)
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o")
-        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.2"))
-        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1200"))
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        # Slightly lower default temperature to prefer precision
+        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.15"))
+        # Increase default token budget to enable richer sections without manual env tuning
+        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "3000"))
 
     def _with_retry(self, func, *args, **kwargs):
         delays = [0.5, 1.5, 3.0]
@@ -31,55 +40,21 @@ class OpenAIClient:
                     break
         raise last_err  # type: ignore[misc]
 
-    def complete_with_tools(
-        self, messages: List[Dict[str, Any]], tools: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        resp = self._with_retry(
-            self.client.chat.completions.create,
-            model=self.model,
-            messages=messages,
-            tools=tools,
-            tool_choice="auto",
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
-        )
-        out: Dict[str, Any] = {"tool_calls": []}
-        msg = resp.choices[0].message
-        if msg.tool_calls:
-            for tc in msg.tool_calls:
-                out["tool_calls"].append(
-                    {
-                        "id": tc.id,
-                        "type": tc.type,
-                        "function": {
-                            "name": tc.function.name,
-                            "arguments": tc.function.arguments,
-                        },
-                    }
-                )
-        else:
-            out["content"] = msg.content or ""
-        return out
-
     def json_completion(self, messages: List[Dict[str, Any]]) -> str:
         resp = self._with_retry(
             self.client.chat.completions.create,
             model=self.model,
             messages=messages,
-            response_format={"type": "json_object"},
             temperature=self.temperature,
             max_tokens=self.max_tokens,
         )
-        return resp.choices[0].message.content
+        return resp.choices[0].message.content or "{}"
 
     def json_completion_schema(
-        self,
-        messages: List[Dict[str, Any]],
-        name: str,
-        schema: Dict[str, Any],
-        strict: bool = True,
+        self, messages: List[Dict[str, Any]], name: str, schema: Dict[str, Any], strict: bool = True
     ) -> str:
-        """Ask model to return content constrained by a JSON schema. Returns JSON string."""
+        # Newer OpenAI clients support response_format with JSON schema.
+        # If it fails, caller will fall back to json_completion.
         resp = self._with_retry(
             self.client.chat.completions.create,
             model=self.model,
@@ -91,4 +66,13 @@ class OpenAIClient:
             temperature=self.temperature,
             max_tokens=self.max_tokens,
         )
-        return resp.choices[0].message.content
+        return resp.choices[0].message.content or "{}"
+
+    def complete(self, prompt: str, **kwargs) -> str:
+        resp = self._with_retry(
+            self.client.chat.completions.create,
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            **kwargs,
+        )
+        return resp.choices[0].message.content or ""

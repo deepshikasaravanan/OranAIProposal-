@@ -1,12 +1,12 @@
 import requests
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from .schema import Opportunity
 from .utils import env
 
 USASPENDING_BASE = env("USASPENDING_BASE", "https://api.usaspending.gov/api")
 
 
-def _fetch_agency_naics_awards(agency: str | None, naics: str | None) -> List[float]:
+def _fetch_agency_naics_awards(agency: Optional[str], naics: Optional[str]) -> List[float]:
     if not agency or not naics:
         return []
     try:

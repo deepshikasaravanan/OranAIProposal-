@@ -5,7 +5,7 @@ import os
 
 
 def expand_bullets_to_paragraphs(title: str, bullets: List[str], shall_ids: List[str]) -> List[str]:
-    """Turn bullets into 2-4 crisp paragraphs, mapping coverage and maintaining compliance tone.
+    """Turn bullets into 5-9 cohesive paragraphs with citations, metrics, and benefits.
 
     Returns a list of paragraph strings. Uses OpenAI with schema; falls back to simple joins.
     """
@@ -16,15 +16,17 @@ def expand_bullets_to_paragraphs(title: str, bullets: List[str], shall_ids: List
         system_msg = {
             "role": "system",
             "content": (
-                "You are a senior proposal writer. Expand labeled bullets into cohesive narrative paragraphs in a "
+                "You are a senior proposal writer. Expand labeled bullets into cohesive, precise narrative paragraphs in a "
                 "professional, active voice. Use the labels to structure content (Approach → methods/process, "
                 "Deliverables → concrete outputs, Schedule → cadence & milestones, Risks/Mitigations → risk mgmt, "
-                "QA → quality controls, Compliance → mapping to shall IDs). Avoid fluff; be specific and technical."
+                "QA → quality controls, Compliance → mapping to shall IDs). Avoid fluff; be specific and technical. "
+                "Cite PWS references inline where applicable (e.g., [PWS 5.3.4])."
             ),
         }
-        # Optional BD checklist context
+        # Optional BD checklist context and full system prompt pack
         chk = None
         dev6 = None
+        sys_pack = None
         try:
             chk_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts", "opportunity_process_checklist.md")
             if os.path.exists(chk_path):
@@ -34,9 +36,14 @@ def expand_bullets_to_paragraphs(title: str, bullets: List[str], shall_ids: List
             if os.path.exists(dev6_path):
                 with open(dev6_path, "r", encoding="utf-8") as f:
                     dev6 = f.read()
+            sys_pack_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts", "proposal_system_context.md")
+            if os.path.exists(sys_pack_path):
+                with open(sys_pack_path, "r", encoding="utf-8") as f:
+                    sys_pack = f.read()
         except Exception:
             chk = None
             dev6 = None
+            sys_pack = None
 
         user_msg = {
             "role": "user",
@@ -46,11 +53,12 @@ def expand_bullets_to_paragraphs(title: str, bullets: List[str], shall_ids: List
                     "bullets": bullets,
                     "related_shalls": shall_ids,
                     "constraints": {
-                        "paragraphs": {"min": 2, "max": 5},
-                        "style": "concise, technical, compliant",
+                        "paragraphs": {"min": 5, "max": 9},
+                        "style": "precise, technical, compliant; include metrics, benefits, and inline [PWS x.x.x] citations where relevant",
                     },
                     "bd_checklist": chk or "",
                     "proposal_development": dev6 or "",
+                    "system_context": (sys_pack or "")[:4000],
                 }
             ),
         }
@@ -59,8 +67,8 @@ def expand_bullets_to_paragraphs(title: str, bullets: List[str], shall_ids: List
             "properties": {
                 "paragraphs": {
                     "type": "array",
-                    "minItems": 2,
-                    "maxItems": 6,
+                    "minItems": 5,
+                    "maxItems": 9,
                     "items": {"type": "string"},
                 }
             },

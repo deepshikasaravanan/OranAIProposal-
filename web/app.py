@@ -27,6 +27,9 @@ async def process(
     rfp: UploadFile | None = File(None),
     brand_company: str | None = Form(default=None),
     brand_tagline: str | None = Form(default=None),
+    model: str | None = Form(default=None),
+    # Accept as string to avoid 422 on empty input and coerce manually
+    max_tokens: str | None = Form(default=None),
 ):
     """Run the ingestion + generation pipeline.
 
@@ -38,10 +41,26 @@ async def process(
     # Stash originals
     orig_brand = os.environ.get("ORAN_BRAND_NAME")
     orig_header_right = os.environ.get("ORAN_HEADER_RIGHT")
-    if brand_company:
-        os.environ["ORAN_BRAND_NAME"] = brand_company
-    if brand_tagline:
-        os.environ["ORAN_HEADER_RIGHT"] = brand_tagline
+    orig_model = os.environ.get("OPENAI_MODEL")
+    orig_max_toks = os.environ.get("OPENAI_MAX_TOKENS")
+    did_brand = False
+    did_tagline = False
+    did_model = False
+    did_tokens = False
+    if brand_company and brand_company.strip():
+        os.environ["ORAN_BRAND_NAME"] = brand_company.strip()
+        did_brand = True
+    if brand_tagline and brand_tagline.strip():
+        os.environ["ORAN_HEADER_RIGHT"] = brand_tagline.strip()
+        did_tagline = True
+    if model and model.strip():
+        os.environ["OPENAI_MODEL"] = model.strip()
+        did_model = True
+    if max_tokens is not None:
+        mt = (max_tokens or "").strip()
+        if mt.isdigit():
+            os.environ["OPENAI_MAX_TOKENS"] = mt
+            did_tokens = True
     try:
         result = await process_pipeline(pws, rfp)
         # Echo applied branding so UI can reflect
@@ -54,16 +73,26 @@ async def process(
         return JSONResponse({"error": str(e)}, status_code=500)
     finally:
         # Restore originals (or delete if none originally set)
-        if brand_company:
+        if did_brand:
             if orig_brand is None:
                 os.environ.pop("ORAN_BRAND_NAME", None)
             else:
                 os.environ["ORAN_BRAND_NAME"] = orig_brand
-        if brand_tagline:
+        if did_tagline:
             if orig_header_right is None:
                 os.environ.pop("ORAN_HEADER_RIGHT", None)
             else:
                 os.environ["ORAN_HEADER_RIGHT"] = orig_header_right
+        if did_model:
+            if orig_model is None:
+                os.environ.pop("OPENAI_MODEL", None)
+            else:
+                os.environ["OPENAI_MODEL"] = orig_model
+        if did_tokens:
+            if orig_max_toks is None:
+                os.environ.pop("OPENAI_MAX_TOKENS", None)
+            else:
+                os.environ["OPENAI_MAX_TOKENS"] = orig_max_toks
 
 @app.get("/outputs")
 def outputs():
@@ -107,6 +136,15 @@ def brand_debug():
         "note": "Update env and restart server to apply changes, or drop a file at web/static/oran_logo.png.",
     }
     return info
+@app.post("/api/hero/upload")
+async def upload_hero_image(file: UploadFile = File(...)):
+    """Accept a PNG/JPG hero architecture graphic and save to web/static/hero_screenshot.png"""
+    os.makedirs("web/static", exist_ok=True)
+    out = os.path.join("web", "static", "hero_screenshot.png")
+    with open(out, "wb") as f:
+        f.write(await file.read())
+    return {"saved": out}
+
 
 
 @app.get("/api/pricing")

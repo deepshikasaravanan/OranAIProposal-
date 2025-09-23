@@ -9,4 +9,8 @@ demo:
 	cat /tmp/opp_intake.json | jq '.'
 	cp examples/opportunity_sample.json /tmp/opp_score.json
 	$(CLI) score --json /tmp/opp_score.json | jq '.'
+.PHONY: cover
+## cover: generate sample cover.docx from examples/cover_sample.json
+cover:
+	$(CLI) cover examples/cover_sample.json -o cover.docx
 

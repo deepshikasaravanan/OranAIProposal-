@@ -44,6 +44,7 @@ curl -s http://127.0.0.1:8000/health
 ```bash
 python -m prop.cli intake examples/pws_sample.md > /tmp/opportunity.json
 python -m prop.cli score --json examples/opportunity_sample.json
+python -m prop.cli cover examples/cover_sample.json -o cover.docx
 ```
 Show help:
 ```bash
@@ -90,6 +91,39 @@ Run artifacts saved under `web/outputs/<run_id>/`:
 - `proposal.docx`
 - `capability_compliance.csv` (if capabilities available)
 
+## Cover Page Builder
+The dedicated cover page generator assembles a branded, single-page front cover including:
+- Logo + Prepared By card (company identifiers, POC contacts)
+- Title block (three stacked lines + notice/RFP ID)
+- Submission contacts and metadata
+- Pillar banner (three themed images with captions)
+- Certifications & Standards blocks
+- Process / People / Tools strips
+- Footer disclaimer
+
+### Requirements
+Core dependency: `python-docx` (installed via `requirements.txt`).
+Optional: Pillow (only needed if you plan to manipulate or resize images externally; current implementation uses native python-docx scaling).
+
+### Sample Data
+Edit `examples/cover_sample.json` (fields: branding, cover, prepared_by, pillars, certifications, standards, strips, footer_disclaimer). All images are optional—missing paths are skipped gracefully.
+
+### Generate Cover
+```bash
+python -m prop.cli cover examples/cover_sample.json -o cover.docx
+```
+
+### Expected Output
+Produces `cover.docx`: a single-page DOCX (Letter portrait) with consistent margins (0.5" top/bottom, 0.6" left/right). Tables are marked non-splittable to ensure all visual blocks remain on page 1. If the content exceeds one page (extreme data), consider shortening lists or pillar captions.
+
+### Customization
+- Override colors via branding hex values in JSON
+- Omit any optional arrays (certifications, standards, pillars) to suppress those sections
+- Provide `customer_logo_path` for an agency logo beneath the header
+
+### Integration Roadmap
+Future steps may stitch this cover into the full `proposal.docx` pipeline as the first page before narrative generation.
+
 ## n8n Workflow (Email → S3 → Intake → Score → IF → Generate → Slack)
 High-level steps to automate pipeline in n8n:
 1. Trigger: IMAP Email node (watch inbox for new PWS attachments)
@@ -118,6 +152,26 @@ Run lint (optional): integrate flake8 / ruff if desired.
 - Auto capability extraction feeding Appendix
 - Diagram inference for Mermaid generation
 - Asset management + multi-page front-end
+
+## Streamlit Front-End (Optional)
+This repository includes `streamlit_app.py` for a quick, self-contained UI (no FastAPI reverse proxy required).
+
+Run locally:
+```bash
+pip install -r requirements.txt  # ensures streamlit is installed
+streamlit run streamlit_app.py
+```
+Outputs are written to `web/outputs/<run_id>` just like the FastAPI flow. Branding honors `ORAN_BRAND_NAME`, `ORAN_HEADER_RIGHT`, and the logo at `web/static/oran_logo.png`.
+
+Deploy (Streamlit Cloud):
+1. Push repo to GitHub (ensure no secrets committed).
+2. In Streamlit Cloud, set environment variables (OPENAI_API_KEY, SAM_API_KEY, ORAN_* branding, etc.).
+3. Set the main file to `streamlit_app.py`.
+
+Future hardening (recommended):
+- Swap direct function call for HTTP calls to deployed FastAPI service for scale separation.
+- Add simple auth (token header) around remotely invoked endpoints.
+- Persist run metadata in a database (SQLite/Postgres) for shared history.
 
 ## License
 Internal / TBD.

@@ -1,0 +1,52 @@
+{
+  "branding": {
+    "logo_path": "web/static/oran_logo.png",
+    "primary_hex": "#0A3768",
+    "accent_hex": "#F6A800",
+    "light_hex": "#F2F6FB"
+  },
+  "cover": {
+    "customer_logo_path": "assets/customer_logo.png",
+    "title_lines": [
+      "ENTERPRISE DATA PLATFORM",
+      "MODERNIZATION PROPOSAL",
+      "RFP HS-EDP-25-001"
+    ],
+    "notice_id_label": "RFP HS-EDP-25-001",
+    "submitted_via": "email to:",
+    "contacts": [
+      {"name": "Jane Doe", "title": "Program Manager", "org": "Oran Inc.", "email": "jane.doe@oran.ai", "phone": "(555) 123-4567"},
+      {"name": "John Smith", "title": "Contracts Manager", "org": "Oran Inc.", "email": "john.smith@oran.ai"}
+    ],
+    "submitted_on": "2025-10-15"
+  },
+  "prepared_by": {
+    "company_name": "Oran Inc.",
+    "address_lines": ["123 Tech Way", "Arlington, VA 22202"],
+    "uei": "UEI-XYZ1234",
+    "cage": "1ABCD",
+    "duns": "123456789",
+    "poc_name": "Jane Doe",
+    "poc_email": "jane.doe@oran.ai",
+    "poc_phone": "(555) 123-4567",
+    "alt_poc_name": "John Smith",
+    "alt_poc_email": "john.smith@oran.ai",
+    "contract_vehicle": "GSA MAS",
+    "company_size": "Small Business"
+  },
+  "pillars": [
+    {"label": "Data Ingestion", "image_path": "assets/pillar_ingest.png"},
+    {"label": "Analytics & AI", "image_path": "assets/pillar_ai.png"},
+    {"label": "Secure Operations", "image_path": "assets/pillar_secure.png"}
+  ],
+  "certifications": ["CMMI-DEV L3", "ISO 27001", "ISO 9001", "AWS Advanced Partner", "SB (Small Business)"],
+  "standards": ["NIST 800-53", "NIST 800-171", "Zero Trust Architecture", "CISA Secure Software Dev"],
+  "strips": {
+    "processes": ["Agile Delivery", "DevSecOps", "ITIL v4", "CI/CD"],
+    "people": ["Cleared SMEs", "Data Engineers", "Security Analysts", "Scrum Masters"],
+    "tools": ["Airflow", "dbt", "Kubernetes", "Falcon", "Terraform"]
+  },
+  "team_image_path": "assets/team_oran.png",
+  "team_image_caption": "Our people are the cornerstone of our success.",
+  "footer_disclaimer": "Proprietary & Confidential – Use or disclosure is subject to the restriction on the title page of this proposal."
+}
