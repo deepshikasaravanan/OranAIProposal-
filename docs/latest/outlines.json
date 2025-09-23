@@ -1,0 +1,177 @@
+{
+  "items": [
+    {
+      "section": "General",
+      "title": "Response Overview",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] and Machine Learning Program Support Services. The Government shall not exercise any supervision or control",
+        "[Deliverables] over the contract service providers performing the services herein. Such contract service providers shall be",
+        "[Schedule] The contractor shall perform to the standards in this contract.",
+        "[Risks] accelerate adoption of data, analytics, and AI to generate decision advantage. The contractor shall provide a range",
+        "[Mitigations] Contractor shall provide the QCP to the Government NLT 30 days after contract award date. The Contractor shall",
+        "[QA] shall demonstrate the Contractor’s documented processes and procedures to monitor and control:",
+        "[Compliance] contractor shall be required to account for the whereabouts of its personnel should such accountability information"
+      ],
+      "related_shalls": [
+        "cdb90ad434",
+        "b3089720fe",
+        "01893b07f6",
+        "3ad5797edb",
+        "9589139607",
+        "97c7b4a417",
+        "dc876c487f",
+        "028df5fb43",
+        "90b2551b8c",
+        "c5a9ebef9c"
+      ]
+    },
+    {
+      "section": "1.1",
+      "title": "Response to Section 1.1",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.1 Description of Services/Introduction. The contractor shall provide all personnel, equipment, supplies, facilities,"
+      ],
+      "related_shalls": [
+        "4508bab425"
+      ]
+    },
+    {
+      "section": "1.4",
+      "title": "Response to Section 1.4",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.4 Scope. The contractor shall provide services support to OCDAO as it provides capabilities and concepts to"
+      ],
+      "related_shalls": [
+        "27686475fe"
+      ]
+    },
+    {
+      "section": "1.5",
+      "title": "Response to Section 1.5",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.5 Period of Performance. The period of performance for this contract shall be for 1 year base + 4 options, as follows:"
+      ],
+      "related_shalls": [
+        "a723ec34d3"
+      ]
+    },
+    {
+      "section": "1.6.1",
+      "title": "Response to Section 1.6.1",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.1 Quality Control Plan (QCP). The Contractor shall develop a QCP that demonstrates how the Contractor shall"
+      ],
+      "related_shalls": [
+        "6457303948"
+      ]
+    },
+    {
+      "section": "1.6.5",
+      "title": "Response to Section 1.6.5",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.5 Place of Performance. Work performance shall be performed onsite at Government facilities in the National"
+      ],
+      "related_shalls": [
+        "d87a51cd0e"
+      ]
+    },
+    {
+      "section": "1.6.7.1",
+      "title": "Response to Section 1.6.7.1",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.7.1 Physical Security. The Contractor shall be responsible for safeguarding all government equipment,"
+      ],
+      "related_shalls": [
+        "a74547b5ef"
+      ]
+    },
+    {
+      "section": "1.6.7.2",
+      "title": "Response to Section 1.6.7.2",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.7.2 Key Control. The Contractor shall establish and implement methods of making sure all keys/key cards"
+      ],
+      "related_shalls": [
+        "5e3c61faf4"
+      ]
+    },
+    {
+      "section": "1.6.7.2.1",
+      "title": "Response to Section 1.6.7.2.1",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.7.2.1 In the event keys, other than master keys, are lost or duplicated, the Contractor shall, upon direction of the"
+      ],
+      "related_shalls": [
+        "10abeedbae"
+      ]
+    },
+    {
+      "section": "1.6.7.2.2",
+      "title": "Response to Section 1.6.7.2.2",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.7.2.2 The Contractor shall prohibit the use of Government issued keys/key cards by any persons other than the"
+      ],
+      "related_shalls": [
+        "b50173ceee"
+      ]
+    },
+    {
+      "section": "1.6.7.3",
+      "title": "Response to Section 1.6.7.3",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.7.3 Lock Combinations. The Contractor shall establish and implement methods of ensuring that all lock"
+      ],
+      "related_shalls": [
+        "ffb2ab00c7"
+      ]
+    },
+    {
+      "section": "1.6.9",
+      "title": "Response to Section 1.6.9",
+      "page_budget": 2.9166666666666665,
+      "bullets": [
+        "[Approach] 1.6.9 Special Qualifications: The contractor shall assign personnel to this contract by education, experience,"
+      ],
+      "related_shalls": [
+        "ea86c66c8a"
+      ]
+    },
+    {
+      "section": "6",
+      "title": "Proposal Development Plan",
+      "page_budget": 1.0,
+      "bullets": [
+        "[Approach] Always start with a roadmap and define Labor Categories.",
+        "[Schedule] Include a kickoff meeting and generate an initial outline.",
+        "[Compliance] Perform a compliance check immediately after creating the outline.",
+        "[Approach] Assign authors to proposal sections.",
+        "[QA] Conduct a Pink Team Review for first compliance and structure check; ensure requirements are addressed and direction is correct.",
+        "[Approach] Request Pink Team input and assemble inputs into a working document.",
+        "[Approach] Distribute the Pink Team document to the team for review.",
+        "[QA] Conduct a Red Team Review at 85–90% solution to strengthen technical and management content.",
+        "[QA] Send documents back to authors for adjudication of comments and revisions.",
+        "[QA] Complete a full Red Review (prose draft).",
+        "[QA] Perform an internal review of the management section.",
+        "[Compliance] Verify that SF-33s, SF-18s, and SF-1449s are signed and amendments acknowledged.",
+        "[QA] Review technical content again and send back for adjudication if needed.",
+        "[Schedule] Prepare a submission email listing all required filenames.",
+        "[QA] Conduct a Gold Review for final refinement, polishing content, graphics, and narrative.",
+        "[Compliance] Ensure RFP compliance before submission.",
+        "[QA] Perform a White Glove Review by a C-level executive and Proposal Manager (check grammar, RFP compliance, 508 compliance).",
+        "[Deliverables] Incorporate all feedback and finalize the proposal."
+      ],
+      "related_shalls": []
+    }
+  ]
+}

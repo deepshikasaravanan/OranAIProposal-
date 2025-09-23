@@ -1,0 +1,47 @@
+# Rulebook for OCDAO proposal structure and ownership
+words_per_page: 425
+page_cap: 40
+
+# Owner assignments by top-level PWS section (e.g., 5.1, 5.2)
+owners:
+  "5.1": "Oran Inc."
+  "5.2": "Morton Analytics"
+  "5.3": "MOSAIC ATM"
+  "5.4": "ORAN INC"
+  "5.5": "Apex (LEAD with BOOSTAROAI)"
+  "5.6": "Oran Lead Apex supporting"
+  "5.7": ""  # GAP
+supporting:
+  "5.6": "Apex"
+
+# Page budgets for key sections
+budgets:
+  exec_summary_pages: 2
+  tasks:
+    "5.1": 2.5
+    "5.2": 4.0
+    "5.3": 4.0
+    "5.4": 5.0
+    "5.5": 2.0
+    "5.6": 2.0
+    "5.7": 1.0
+
+# Sections that are acknowledged gaps in current coverage
+gap_sections: ["5.7"]
+
+# Optional inclusions before/after control tables
+toc_extras:
+  list_of_figures: true
+  list_of_tables: true
+  acronyms: true
+
+# Management Approach volume/section outline
+management_approach:
+  include: true
+  sections:
+    - "Management Approach"
+    - "Program Management Controls"
+    - "Staffing Plan"
+    - "Key personnel"
+    - "Transition Plan"
+    - "Sample Staffing Matrix for all 90 FTEs (To be updated)"

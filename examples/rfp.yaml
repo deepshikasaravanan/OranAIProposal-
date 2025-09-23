@@ -1,0 +1,22 @@
+meta:
+  agency: OCDAO
+  contract_type: T&M
+pop:
+  base_start: 2025-09-11
+  base_end: 2026-09-10
+deliverables:
+  - name: QCP
+    due_days: 30
+    start_at_day0: true
+  - name: MPR (Monthly Progress Report)
+    due_days: 30
+    start_at_day0: true
+  - name: MFR (Monthly Financial Report + SER)
+    due_days: 30
+    start_at_day0: true
+  - name: Phase-Out Draft
+    due_days: 275
+    start_at_day0: true
+  - name: Phase-Out Final
+    due_days: 335
+    start_at_day0: true

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Proposal Bot</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner nav-flex">
+        <h1>Proposal Bot <span class="tag">beta</span></h1>
+        <nav class="main-nav">
+          <a href="#features">Features</a>
+          <a href="#howitworks">How It Works</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
+        <div class="nav-cta">
+          <a href="#ingest" class="login-link">Log In</a>
+          <a href="#ingest" class="cta primary small">Get Started</a>
+        </div>
+      </div>
+    </header>
+    <!-- Hero Section (centered, no architecture image) -->
+    <section class="hero centered" id="home">
+      <div class="hero-inner">
+        <h1 class="hero-title big">Find. Bid. Win!<br/><span class="accent-strong">Government Contracts with AI</span></h1>
+        <p class="hero-sub">Effortlessly discover opportunities, craft winning proposals, and stay ahead of the competition. The simplest way to leverage AI for your GovCon business.</p>
+        <div class="hero-actions center">
+          <a href="#ingest" class="cta primary gradient">Start for Free</a>
+        </div>
+        <div class="trust-row">
+          <div class="avatars" aria-label="Trusted by"> 
+            <span class="avatar a1" aria-hidden="true"></span>
+            <span class="avatar a2" aria-hidden="true"></span>
+            <span class="avatar a3" aria-hidden="true"></span>
+            <span class="avatar a4" aria-hidden="true"></span>
+          </div>
+          <div class="trust-text"><strong>Trusted by 400+ companies</strong></div>
+        </div>
+        <div class="logo-strip" aria-hidden="true">
+          <span class="logo l1">red-inc</span>
+          <span class="logo l2">Marathon</span>
+          <span class="logo l3">VarnerMiller</span>
+          <span class="logo l4">BATIR</span>
+        </div>
+        <ul class="hero-badges">
+          <li>7-day free trial</li>
+          <li>Federal &amp; SLED Contracts</li>
+          <li>Secure &amp; Compliant</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Feature Grid similar to reference screenshot -->
+    <section class="features" id="features">
+      <h2>Platform Capabilities</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="icon">🤖</div>
+          <h3>AI GovCon Agent</h3>
+          <p>Turns 200+ page PDFs into navigable sections, distilled requirements, and actionable guidance.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">🔍</div>
+          <h3>Smart Opportunity Match</h3>
+          <p>Ranks and scores opportunities using enrichment (SAM + USAspending) with compliance and fit heuristics.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📝</div>
+          <h3>Proposal Writer</h3>
+          <p>Expands structured outlines &amp; requirements coverage into narrative draft sections aligned to shalls.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📊</div>
+          <h3>Pursuit Management</h3>
+          <p>Scoring outputs expose blockers, next actions, competitor signals, and value alignment for BD reviews.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">📁</div>
+          <h3>Document Hub</h3>
+          <p>Normalizes mixed-source inputs (ZIP, PDF, DOCX, MD) and materializes assets for traceability & audit.</p>
+        </article>
+        <article class="feature-card">
+          <div class="icon">🤝</div>
+          <h3>Teaming Insights</h3>
+          <p>Surfacing incumbent &amp; competitor density heuristics to inform teaming or positioning early.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Workbench (Upload + Results + Branding) hidden until activated by Proposal Writer card click -->
+    <main class="layout workbench" id="workbench" hidden>
+      <button class="close-workbench ghost" type="button" title="Close" id="closeWorkbench" style="position:absolute;top:-14px;right:10px;">✕</button>
+      <section class="panel" id="ingest">
+        <h2>1. Upload Source</h2>
+        <form id="form" class="stack">
+          <div class="field">
+            <label>PWS / SoW (pdf, docx, md, txt) <span class="req">*</span></label>
+            <input type="file" name="pws" required />
+          </div>
+          <div class="field">
+            <label>RFP YAML (optional)</label>
+            <input type="file" name="rfp" />
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Model (optional)</label>
+              <input type="text" name="model" placeholder="e.g., gpt-4o-mini" />
+            </div>
+            <div class="field">
+              <label>Max Tokens (optional)</label>
+              <input type="text" name="max_tokens" placeholder="e.g., 2000" />
+            </div>
+          </div>
+          <button type="submit" class="primary">Generate Proposal</button>
+        </form>
+        <div class="progress" id="progress" hidden>
+          <div class="bar" id="bar"></div>
+          <span id="progress-text">Processing…</span>
+        </div>
+      </section>
+
+      <section class="panel" id="results">
+        <h2>2. Results</h2>
+        <div id="summary" class="summary-cards" hidden></div>
+        <div class="outputs" id="links"></div>
+        <details class="raw" id="rawDetails">
+          <summary>Raw JSON (advanced)</summary>
+          <pre id="out" class="code-block">Upload a document to see structured output.</pre>
+        </details>
+      </section>
+    </main>
+  <section class="pricing" id="pricing">
+      <h2>Pricing</h2>
+      <p class="pricing-sub">Flexible plans that scale with your federal capture & proposal velocity.</p>
+      <div id="pricingGrid" class="pricing-grid" aria-live="polite"></div>
+    </section>
+    <footer class="site-footer">&copy; <span id="year"></span> Proposal Bot – auto-drafted content preview.</footer>
+
+    <script>
+      const form = document.getElementById('form');
+      const out = document.getElementById('out');
+      const links = document.getElementById('links');
+      const progress = document.getElementById('progress');
+      const bar = document.getElementById('bar');
+      const progressText = document.getElementById('progress-text');
+  const summaryEl = document.getElementById('summary');
+
+      function fakeProgress() {
+        let pct = 5;
+        progress.hidden = false;
+        bar.style.width = pct + '%';
+        const id = setInterval(() => {
+          pct = Math.min(95, pct + Math.random()*8);
+            bar.style.width = pct.toFixed(1) + '%';
+        }, 300);
+        return () => { clearInterval(id); bar.style.width = '100%'; setTimeout(()=> progress.hidden = true, 600); };
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        links.innerHTML = '';
+        out.textContent = 'Uploading & processing…';
+        const stop = fakeProgress();
+        const fd = new FormData(form);
+        // Pass branding inputs via temporary env override endpoint? For now attach to form (backend may ignore if unsupported)
+  // Branding inputs removed; relying on default Oran branding.
+        try {
+          const res = await fetch('/process', { method: 'POST', body: fd });
+          const data = await res.json();
+          out.textContent = JSON.stringify(data, null, 2);
+          // Build concise summary metrics
+          try {
+            const rg = data.requirements || data.rg; // if future structure changes
+            const outputs = data.outputs || {}; 
+            // Derive counts from requirements.json if returned inside data? (Currently only paths returned.)
+            const metrics = [];
+            if (data.section6_coverage) {
+              const covered = Object.values(data.section6_coverage).filter(Boolean).length;
+              metrics.push({label:'Section 6 Coverage', value: covered + '/' + Object.keys(data.section6_coverage).length});
+            }
+            if (outputs.requirements) metrics.push({label:'Requirements JSON', value:'✓'});
+            if (outputs.outlines) metrics.push({label:'Outlines JSON', value:'✓'});
+            if (outputs.flowchart) metrics.push({label:'Flowchart', value:'✓'});
+            if (outputs.gantt) metrics.push({label:'Gantt', value:'✓'});
+            if (outputs.docx) metrics.push({label:'Proposal DOCX', value:'✓'});
+            if (metrics.length) {
+              summaryEl.hidden = false;
+              summaryEl.innerHTML = metrics.map(m=>`<div class="metric"><div class="val">${m.value}</div><div class="lab">${m.label}</div></div>`).join('');
+            }
+          } catch(_e) { /* ignore summary errors */ }
+          if (data.outputs) {
+            const makeLink = (label, path) => `<a class="chip" href="/download?path=${encodeURIComponent(path)}" target="_blank" rel="noopener">${label}</a>`;
+            const order = [
+              ['Proposal DOCX','docx'],
+              ['Requirements JSON','requirements'],
+              ['Outlines JSON','outlines'],
+              ['Flowchart PNG','flowchart'],
+              ['Gantt PNG','gantt']
+            ];
+            links.innerHTML = order.map(([label,key]) => data.outputs[key] && makeLink(label, data.outputs[key])).filter(Boolean).join('');
+          }
+        } catch (err) {
+          out.textContent = 'Error: ' + err;
+        } finally {
+          stop();
+        }
+      });
+
+  // Branding upload & debug removed for streamlined UX.
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Hero image uploader removed per new design (no architecture image)
+
+      // --- Pricing dynamic fetch ---
+      async function loadPricing(){
+        try {
+          const res = await fetch('/api/pricing');
+          if(!res.ok) return;
+          const data = await res.json();
+          const grid = document.getElementById('pricingGrid');
+          grid.innerHTML = data.tiers.map(t => pricingCard(t)).join('');
+        } catch(e){ /* silent */ }
+      }
+      function pricingCard(t){
+        const badge = t.highlight ? `<div class="plan-badge">✨ Most Popular</div>` : '';
+        const price = t.contact ? `<div class="plan-price contact">Contact Us</div>` : `<div class="plan-price"><span class="amt">$${t.price_month}</span><span class="per">/month</span></div>`;
+        const trial = t.trial ? `<div class="trial">${t.trial}</div>` : '';
+        return `<article class="plan ${t.highlight? 'highlight':''}" data-plan="${t.id}">
+          ${badge}
+          <h3>${t.name}</h3>
+          <p class="tagline">${t.tagline}</p>
+          ${trial}
+          ${price}
+          <ul class="features">${t.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+          <button class="plan-cta">${t.contact? 'Contact Sales':'Start Trial'}</button>
+        </article>`;
+      }
+      loadPricing();
+
+      // --- Activate workbench when Proposal Writer card clicked ---
+      const workbench = document.getElementById('workbench');
+      const proposalCard = Array.from(document.querySelectorAll('.feature-card h3'))
+        .find(h => h.textContent.trim().toLowerCase() === 'proposal writer');
+      if (proposalCard) {
+        proposalCard.parentElement.addEventListener('click', () => {
+          if (workbench.hidden) {
+            workbench.hidden = false;
+          }
+            document.body.classList.add('show-workbench');
+            workbench.scrollIntoView({behavior:'smooth', block:'start'});
+        });
+      }
+      const closeBtn = document.getElementById('closeWorkbench');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          document.body.classList.remove('show-workbench');
+          workbench.hidden = true;
+        });
+      }
+    </script>
+  </body>
+</html>
