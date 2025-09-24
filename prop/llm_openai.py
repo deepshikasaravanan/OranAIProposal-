@@ -13,10 +13,19 @@ class OpenAIClient:
     """
 
     def __init__(self, model: Optional[str] = None) -> None:
+        # Prefer env var; fall back to reading a file path if provided
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
+            key_file = os.getenv("OPENAI_API_KEY_FILE")
+            if key_file and os.path.isfile(key_file):
+                try:
+                    with open(key_file, "r", encoding="utf-8") as f:
+                        api_key = f.read().strip()
+                except Exception:
+                    api_key = None  # will error below with clear guidance
+        if not api_key:
             raise RuntimeError(
-                "OPENAI_API_KEY not set. Provide via environment; no default embedded."
+                "Missing OpenAI API key. Set OPENAI_API_KEY (recommended) or set OPENAI_API_KEY_FILE to a file containing the key."
             )
 
         self.client = OpenAI(api_key=api_key)
