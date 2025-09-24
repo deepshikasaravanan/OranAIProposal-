@@ -4,15 +4,15 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-  healthCheckPath: /health
+    healthCheckPath: /health
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o-mini
       - key: OPENAI_MAX_TOKENS
-    value: "3000"
-  disk:
-    name: outputs
-    mountPath: /app/web/outputs
-    sizeGB: 2
+        value: "3000"
+    disk:
+      name: outputs
+      mountPath: /app/web/outputs
+      sizeGB: 2
