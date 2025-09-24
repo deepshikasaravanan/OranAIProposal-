@@ -15,7 +15,13 @@ app.mount("/static", StaticFiles(directory="web/static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return open("web/static/index.html", "r", encoding="utf-8").read()
+    content = open("web/static/index.html", "r", encoding="utf-8").read()
+    headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
+    return HTMLResponse(content=content, headers=headers)
 
 @app.get("/health")
 def health():
