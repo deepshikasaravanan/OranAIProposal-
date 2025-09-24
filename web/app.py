@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, UploadFile, File, Body, Query, Form
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from .service import process_pipeline, list_outputs
 from prop.schema import Opportunity
@@ -341,4 +341,50 @@ def download(path: str):
     import os
     if not os.path.isfile(path):
         return JSONResponse({"error": "path is not a file"}, status_code=400)
-    return FileResponse(path)
+    # Set a stable filename and content-type so browsers don't rename it to generic download.zip
+    import mimetypes
+    filename = os.path.basename(path)
+    media_type, _ = mimetypes.guess_type(filename)
+    # Fallback to octet-stream if unknown; Word DOCX has a specific type
+    if filename.lower().endswith('.docx'):
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    # Protective headers so proxies/browsers don't transform or sniff as zip
+    headers = {
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-transform",
+        # Explicit filename to avoid renaming
+        "Content-Disposition": f"attachment; filename={filename}",
+    }
+    return FileResponse(
+        path,
+        media_type=media_type or "application/octet-stream",
+        filename=filename,
+        headers=headers,
+    )
+
+
+@app.get("/download/bundle")
+def download_bundle(run_id: str):
+    """Zip and return all files for a given run id under web/outputs/<run_id>.
+
+    This produces a real ZIP archive with a deterministic filename to avoid
+    browsers renaming the file arbitrarily.
+    """
+    import io
+    import os
+    import zipfile
+
+    base_dir = os.path.abspath(os.path.join("web", "outputs", run_id))
+    if not os.path.isdir(base_dir):
+        return JSONResponse({"error": "run_id not found"}, status_code=404)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        for name in sorted(os.listdir(base_dir)):
+            p = os.path.join(base_dir, name)
+            if os.path.isfile(p):
+                # Store files at top-level inside the zip
+                z.write(p, arcname=name)
+    buf.seek(0)
+    zip_name = f"proposal_run_{run_id}.zip"
+    headers = {"Content-Disposition": f"attachment; filename={zip_name}"}
+    return Response(content=buf.read(), media_type="application/zip", headers=headers)

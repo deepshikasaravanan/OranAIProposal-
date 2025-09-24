@@ -103,15 +103,15 @@
             <label>RFP YAML (optional)</label>
             <input type="file" name="rfp" />
           </div>
-          <div class="grid-2">
-            <div class="field">
-              <label>Model (optional)</label>
-              <input type="text" name="model" placeholder="e.g., gpt-4o-mini" />
-            </div>
-            <div class="field">
-              <label>Max Tokens (optional)</label>
-              <input type="text" name="max_tokens" placeholder="e.g., 2000" />
-            </div>
+          <div class="field">
+            <label>Model (optional)</label>
+            <select name="model">
+              <option value="">Use default</option>
+              <option value="gpt-4o-mini">gpt-4o-mini</option>
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+              <option value="gpt-4.1">gpt-4.1</option>
+            </select>
           </div>
           <button type="submit" class="primary">Generate Proposal</button>
         </form>
@@ -196,10 +196,16 @@
               ['Proposal DOCX','docx'],
               ['Requirements JSON','requirements'],
               ['Outlines JSON','outlines'],
-              ['Flowchart PNG','flowchart'],
               ['Gantt PNG','gantt']
             ];
-            links.innerHTML = order.map(([label,key]) => data.outputs[key] && makeLink(label, data.outputs[key])).filter(Boolean).join('');
+            const chips = order
+              .map(([label,key]) => data.outputs[key] && makeLink(label, data.outputs[key]))
+              .filter(Boolean);
+            if (data.run_id) {
+              const bundle = `<a class="chip" href="/download/bundle?run_id=${encodeURIComponent(data.run_id)}" title="Zip archive containing all outputs (docx, json, images)">All Files (.zip)</a>`;
+              chips.push(bundle);
+            }
+            links.innerHTML = chips.join('');
           }
         } catch (err) {
           out.textContent = 'Error: ' + err;
