@@ -27,7 +27,7 @@ def _save_upload(upload: UploadFile, folder: str) -> str:
         f.write(upload.file.read())
     return path
 
-async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
+async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile], model: Optional[str] = None):
     t0 = time.time()
     timings = {}
     run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:8]
@@ -51,7 +51,7 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
 
     # 3) Draft outlines
     t = time.time()
-    outlines = draft_outlines(rg)
+    outlines = draft_outlines(rg, model=model)
     outlines = ensure_proposal_development_steps(outlines)
     timings["outline"] = round(time.time() - t, 2)
     outlines_json = os.path.join(run_dir, "outlines.json")
@@ -111,6 +111,7 @@ async def process_pipeline(pws: UploadFile, rfp: Optional[UploadFile]):
         mermaid_diagrams=mermaid_diagrams,
         capability_compliance=capability_compliance,
         rulebook=rulebook,
+        model=model,
     )
     timings["docx"] = round(time.time() - t, 2)
     timings["total"] = round(time.time() - t0, 2)

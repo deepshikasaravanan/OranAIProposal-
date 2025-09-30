@@ -1,10 +1,11 @@
 import json
 from collections import defaultdict
-from .llm_openai import OpenAIClient
+from typing import Optional
+from .llm_openai import LLMClient
 import os
 from .schema import RequirementGraph, Outlines, OutlineItem
 
-def draft_outlines(reqs: RequirementGraph) -> Outlines:
+def draft_outlines(reqs: RequirementGraph, model: Optional[str] = None) -> Outlines:
     """Draft outlines using OpenAI; gracefully fallback to heuristic if API fails.
 
     Fallback strategy:
@@ -13,7 +14,7 @@ def draft_outlines(reqs: RequirementGraph) -> Outlines:
     - Assign small default page budgets
     """
     try:
-        client = OpenAIClient()
+        client = LLMClient(model=model)
         shard = [{"id": s.id, "section": s.section, "text": s.text} for s in reqs.shalls[:200]]
         # Compose a stronger instruction with constraints
         # Optional BD checklist context and full system prompt pack
@@ -38,15 +39,36 @@ def draft_outlines(reqs: RequirementGraph) -> Outlines:
             dev6 = None
             sys_pack = None
 
+        # Load advanced business system prompt
+        advanced_system = None
+        advanced_outline = None
+        try:
+            system_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts", "advanced_business_system.md")
+            if os.path.exists(system_path):
+                with open(system_path, "r", encoding="utf-8") as f:
+                    advanced_system = f.read()
+            outline_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts", "advanced_outline_generation.md")
+            if os.path.exists(outline_path):
+                with open(outline_path, "r", encoding="utf-8") as f:
+                    advanced_outline = f.read()
+        except Exception:
+            advanced_system = None
+            advanced_outline = None
+
         system_msg = {
             "role": "system",
             "content": (
-                (sys_pack or "")
-                + "\n\nYou are a senior government proposal strategist with 15+ years of experience writing winning proposals for Fortune 500 contractors. Your expertise includes business analysis, competitive intelligence, and evaluation-focused writing.\n\n"
-                + "BUSINESS-FIRST APPROACH: Lead with business value and ROI quantification. Emphasize competitive advantages and differentiators. Include risk analysis with mitigation strategies. Provide implementation roadmaps with measurable milestones. Address total cost of ownership (TCO) considerations.\n\n"
-                + "EVALUATION CRITERIA ALIGNMENT: For each section, explicitly address Technical Merit (innovation, feasibility, past performance), Management Approach (project controls, quality assurance, risk management), Key Personnel (qualifications, availability, continuity), and Price/Cost (value engineering, cost realism, competitive positioning).\n\n"
-                + "BUSINESS ANALYST REQUIREMENTS: Include financial analysis (cost-benefit analysis, ROI calculations, TCO breakdown), risk assessment matrix (probability/impact scores, mitigation timelines), implementation strategy (phase-gate approach, resource allocation, performance measurement), and competitive positioning (SWOT analysis, unique value propositions).\n\n"
-                + "Create an industry-standard outline that is clear, compliant, and execution-focused. Target a 35–40 page proposal (minimum 35). For each section, produce 6–9 labeled bullets using the tags: [Business-Value], [Technical-Approach], [Risk-Mitigation], [Implementation], [Success-Metrics], [Competitive-Edge], [Compliance]. Keep bullets specific, action-oriented, quantified where possible, and tie to shall IDs. Titles should be client-centric and value-focused. Suggest page budgets between 0.5 and 3.0. Return JSON matching the schema."
+                (advanced_system or "") + "\n\n" + (advanced_outline or "") + "\n\n" +
+                (sys_pack or "") + "\n\n"
+                "You are a senior government proposal strategist writing for Fortune 500 defense contractors. "
+                "Create proposal outlines that win $100M+ contracts by demonstrating clear business value, "
+                "competitive advantages, and risk mitigation strategies.\n\n"
+                "CRITICAL: Each outline item must address evaluation criteria with quantified benefits, "
+                "specific implementation approaches, and competitive differentiation. Target 35-40 pages "
+                "with substantive, business-analyst quality content.\n\n"
+                "Use these business-focused bullet categories: [Executive-Value], [Technical-Solution], "
+                "[Financial-Impact], [Risk-Control], [Implementation-Plan], [Success-Metrics], [Competitive-Edge]. "
+                "Return JSON matching the exact schema provided."
             ),
         }
         user_msg = {
@@ -80,7 +102,7 @@ def draft_outlines(reqs: RequirementGraph) -> Outlines:
                                 "type": "array",
                                 "minItems": 6,
                                 "maxItems": 14,
-                                "items": {"type": "string", "pattern": "^\\[(Business-Value|Technical-Approach|Risk-Mitigation|Implementation|Success-Metrics|Competitive-Edge|Compliance)\\] .+"}
+                                "items": {"type": "string", "pattern": "^\\[(Executive-Value|Technical-Solution|Financial-Impact|Risk-Control|Implementation-Plan|Success-Metrics|Competitive-Edge)\\] .+"}
                             },
                             "related_shalls": {
                                 "type": "array",
@@ -127,7 +149,7 @@ def draft_outlines(reqs: RequirementGraph) -> Outlines:
     # Aim total fallback page budget around 35 when LLM unavailable
     per_budget = 35.0 / max(1, len(sections))
     per_budget = max(1.0, min(3.0, per_budget))
-    labels = ["Business-Value", "Technical-Approach", "Risk-Mitigation", "Implementation", "Success-Metrics", "Competitive-Edge", "Compliance"]
+    labels = ["Executive-Value", "Technical-Solution", "Financial-Impact", "Risk-Control", "Implementation-Plan", "Success-Metrics", "Competitive-Edge"]
     for sec, shs in sections:
         # Create labeled bullets from actual shall text to preserve fidelity
         bullets = []

@@ -68,7 +68,7 @@ async def process(
             os.environ["OPENAI_MAX_TOKENS"] = mt
             did_tokens = True
     try:
-        result = await process_pipeline(pws, rfp)
+        result = await process_pipeline(pws, rfp, model=model)
         # Echo applied branding so UI can reflect
         result["branding_applied"] = {
             "brand_name": os.environ.get("ORAN_BRAND_NAME"),

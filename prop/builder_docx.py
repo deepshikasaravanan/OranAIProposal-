@@ -175,6 +175,7 @@ def build_docx(
     mermaid_diagrams: Optional[List[str]] = None,
     capability_compliance: Optional[List[Dict]] = None,
     rulebook: Optional[Dict] = None,
+    model: Optional[str] = None,
 ):
     doc = Document()
     _apply_heading_colors(doc)
@@ -450,7 +451,7 @@ def build_docx(
             cap2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     # Generate narrative paragraphs from bullets
         try:
-            paras = expand_bullets_to_paragraphs(item.title or item.section, item.bullets, item.related_shalls)
+            paras = expand_bullets_to_paragraphs(item.title or item.section, item.bullets, item.related_shalls, model=model)
         except Exception:
             paras = []
         if paras:
