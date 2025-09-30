@@ -1,5 +1,6 @@
 import os
 import io
+import asyncio
 import streamlit as st
 from fastapi import UploadFile
 from web.service import process_pipeline
@@ -35,6 +36,7 @@ with col2:
 
 run_btn = st.button("Run Pipeline", type="primary", use_container_width=True)
 
+# Cache results for identical inputs during the session
 @st.cache_data(show_spinner=False)
 def _cached_pipeline(pws_bytes: bytes, pws_name: str, rfp_bytes: bytes | None, rfp_name: str | None, brand_name: str, tagline: str):
     """Wrap process_pipeline for caching identical inputs within session."""
@@ -51,7 +53,8 @@ def _cached_pipeline(pws_bytes: bytes, pws_name: str, rfp_bytes: bytes | None, r
     os.environ["ORAN_BRAND_NAME"] = brand_name
     os.environ["ORAN_HEADER_RIGHT"] = tagline
     try:
-        return st.run(process_pipeline(pws_u, rfp_u))  # type: ignore
+        # Run the async pipeline in this synchronous context
+        return asyncio.run(process_pipeline(pws_u, rfp_u))  # type: ignore
     finally:
         if orig_brand is None:
             os.environ.pop("ORAN_BRAND_NAME", None)
