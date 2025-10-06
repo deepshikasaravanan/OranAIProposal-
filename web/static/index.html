@@ -12,8 +12,8 @@
         <h1>Proposal Bot <span class="tag">beta</span></h1>
         <nav class="main-nav">
           <a href="#features">Features</a>
-          <a href="#howitworks">How It Works</a>
-          <a href="#pricing">Pricing</a>
+          <a href="/how-it-works">How It Works</a>
+          <a href="/platform">Platform</a>
         </nav>
         <div class="nav-cta">
           <a href="#ingest" class="login-link">Log In</a>
@@ -52,40 +52,33 @@
       </div>
     </section>
 
-    <!-- Feature Grid similar to reference screenshot -->
+    <!-- Core Features - Focus on main value props -->
     <section class="features" id="features">
-      <h2>Platform Capabilities</h2>
+      <h2>Why Choose Proposal Bot?</h2>
       <div class="feature-grid">
         <article class="feature-card">
-          <div class="icon">🤖</div>
-          <h3>AI GovCon Agent</h3>
-          <p>Turns 200+ page PDFs into navigable sections, distilled requirements, and actionable guidance.</p>
+          <div class="icon">⚡</div>
+          <h3>10x Faster Proposals</h3>
+          <p>Transform weeks of manual work into hours. AI analyzes RFPs and generates winning proposals automatically.</p>
         </article>
         <article class="feature-card">
-          <div class="icon">🔍</div>
-          <h3>Smart Opportunity Match</h3>
-          <p>Ranks and scores opportunities using enrichment (SAM + USAspending) with compliance and fit heuristics.</p>
+          <div class="icon">🎯</div>
+          <h3>Higher Win Rates</h3>
+          <p>Smart opportunity scoring helps you bid only on winnable contracts. Focus your efforts where they matter most.</p>
         </article>
         <article class="feature-card">
-          <div class="icon">📝</div>
-          <h3>Proposal Writer</h3>
-          <p>Expands structured outlines &amp; requirements coverage into narrative draft sections aligned to shalls.</p>
+          <div class="icon">�️</div>
+          <h3>Compliance Guaranteed</h3>
+          <p>Never miss a requirement again. AI extracts every "shall" statement and ensures 100% compliance coverage.</p>
         </article>
         <article class="feature-card">
           <div class="icon">📊</div>
-          <h3>Pursuit Management</h3>
-          <p>Scoring outputs expose blockers, next actions, competitor signals, and value alignment for BD reviews.</p>
+          <h3>Data-Driven Decisions</h3>
+          <p>Market intelligence and competitor analysis help you position strategically and make informed bid/no-bid choices.</p>
         </article>
-        <article class="feature-card">
-          <div class="icon">📁</div>
-          <h3>Document Hub</h3>
-          <p>Normalizes mixed-source inputs (ZIP, PDF, DOCX, MD) and materializes assets for traceability & audit.</p>
-        </article>
-        <article class="feature-card">
-          <div class="icon">🤝</div>
-          <h3>Teaming Insights</h3>
-          <p>Surfacing incumbent &amp; competitor density heuristics to inform teaming or positioning early.</p>
-        </article>
+      </div>
+      <div class="features-cta">
+        <a href="/platform" class="cta secondary">Explore All Capabilities →</a>
       </div>
     </section>
 
@@ -138,11 +131,7 @@
         </details>
       </section>
     </main>
-  <section class="pricing" id="pricing">
-      <h2>Pricing</h2>
-      <p class="pricing-sub">Flexible plans that scale with your federal capture & proposal velocity.</p>
-      <div id="pricingGrid" class="pricing-grid" aria-live="polite"></div>
-    </section>
+    
     <footer class="site-footer">&copy; <span id="year"></span> Proposal Bot – auto-drafted content preview.</footer>
 
     <script>
@@ -224,34 +213,6 @@
   // Branding upload & debug removed for streamlined UX.
 
       document.getElementById('year').textContent = new Date().getFullYear();
-
-  // Hero image uploader removed per new design (no architecture image)
-
-      // --- Pricing dynamic fetch ---
-      async function loadPricing(){
-        try {
-          const res = await fetch('/api/pricing');
-          if(!res.ok) return;
-          const data = await res.json();
-          const grid = document.getElementById('pricingGrid');
-          grid.innerHTML = data.tiers.map(t => pricingCard(t)).join('');
-        } catch(e){ /* silent */ }
-      }
-      function pricingCard(t){
-        const badge = t.highlight ? `<div class="plan-badge">✨ Most Popular</div>` : '';
-        const price = t.contact ? `<div class="plan-price contact">Contact Us</div>` : `<div class="plan-price"><span class="amt">$${t.price_month}</span><span class="per">/month</span></div>`;
-        const trial = t.trial ? `<div class="trial">${t.trial}</div>` : '';
-        return `<article class="plan ${t.highlight? 'highlight':''}" data-plan="${t.id}">
-          ${badge}
-          <h3>${t.name}</h3>
-          <p class="tagline">${t.tagline}</p>
-          ${trial}
-          ${price}
-          <ul class="features">${t.features.map(f=>`<li>${f}</li>`).join('')}</ul>
-          <button class="plan-cta">${t.contact? 'Contact Sales':'Start Trial'}</button>
-        </article>`;
-      }
-      loadPricing();
 
       // --- Activate workbench when Proposal Writer card clicked ---
       const workbench = document.getElementById('workbench');

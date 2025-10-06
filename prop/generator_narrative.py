@@ -2,6 +2,7 @@ import json
 from collections import defaultdict
 from typing import Optional
 from .llm_openai import LLMClient
+from .content_quality import ContentQualityController
 import os
 from .schema import RequirementGraph, Outlines, OutlineItem
 
@@ -133,6 +134,15 @@ def draft_outlines(reqs: RequirementGraph, model: Optional[str] = None) -> Outli
                 related_shalls=list(it.get("related_shalls", [])),
             ))
         if items:
+            # Enhance content quality with business intelligence
+            try:
+                quality_controller = ContentQualityController(model=model)
+                for item in items:
+                    enhanced_bullets = quality_controller.add_business_intelligence(item.bullets)
+                    item.bullets = enhanced_bullets
+            except Exception:
+                # Continue with original bullets if enhancement fails
+                pass
             return Outlines(items=items)
     except Exception:
         # Fall back below

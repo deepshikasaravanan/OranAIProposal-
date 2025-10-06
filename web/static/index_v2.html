@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Proposal Agent - Transform Government Contracting</title>
+  <link rel="stylesheet" href="/static/style_v2.css" />
+  <link rel="stylesheet" href="/static/enhancements.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🤖</div>
+        AI Proposal Agent
+      </div>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#workflow">How It Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="#" class="btn btn-secondary">Sign In</a>
+        <a href="#get-started" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>AI GovCon Agent</h1>
+      <p>Turns 200+ page PDFs into navigable sections, distilled requirements, and actionable guidance for winning government contracts.</p>
+      
+      <div class="hero-cards">
+        <div class="feature-card card-interactive" data-feature="learn">
+          <div class="step-indicator">1</div>
+          <div class="card-icon blue">🧠</div>
+          <h3>Learn</h3>
+          <p>CLEATUS builds a complete profile of your business, analyzing past performance, certifications, documents and capabilities.</p>
+          <button class="btn btn-primary">Start Learning →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Workflow Section -->
+    <section id="workflow" class="workflow-section">
+      <div class="workflow-title">
+        <h2>Complete Business Intelligence Hub</h2>
+        <p>Everything you need to win government contracts in one intelligent platform</p>
+      </div>
+      
+      <div class="workflow-grid">
+        <!-- Solutions & Win Themes -->
+        <div class="feature-card card-interactive" data-feature="solutions">
+          <div class="card-icon orange">💡</div>
+          <h3>Solutions & Win Themes</h3>
+          <p>AI-powered solution development with competitive positioning and win theme generation tailored to evaluation criteria.</p>
+          <div class="form-group">
+            <label class="form-label">Upload Requirements (PWS/SOW)</label>
+            <div class="upload-area" id="solutions-upload">
+              <div class="upload-icon">📄</div>
+              <p>Drop PWS/SOW files here or click to upload</p>
+              <input type="file" multiple accept=".pdf,.docx,.txt,.md" style="display: none;">
+            </div>
+          </div>
+          <button class="btn btn-primary">Generate Solutions</button>
+        </div>
+
+        <!-- Templates -->
+        <div class="feature-card card-interactive" data-feature="templates">
+          <div class="card-icon purple">📋</div>
+          <h3>Templates</h3>
+          <p>Pre-built proposal templates optimized for different agencies and contract types with automated compliance checking.</p>
+          <div class="form-group">
+            <label class="form-label">Select Template Type</label>
+            <select class="form-input form-select">
+              <option>IT Services & Cloud Migration</option>
+              <option>Cybersecurity & Zero Trust</option>
+              <option>Data Analytics & AI/ML</option>
+              <option>Professional Services</option>
+              <option>Custom Template</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Use Template</button>
+        </div>
+
+        <!-- Product Specs -->
+        <div class="feature-card card-interactive" data-feature="specs">
+          <div class="card-icon blue">⚙️</div>
+          <h3>Product Specs</h3>
+          <p>Detailed technical specifications and architecture documentation with automated compliance verification.</p>
+          <div class="form-group">
+            <label class="form-label">Technical Domain</label>
+            <select class="form-input form-select">
+              <option>Cloud Infrastructure</option>
+              <option>Cybersecurity Framework</option>
+              <option>Data Engineering</option>
+              <option>AI/ML Platform</option>
+              <option>Custom Specification</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Generate Specs</button>
+        </div>
+
+        <!-- Pricing -->
+        <div class="feature-card card-interactive" data-feature="pricing">
+          <div class="card-icon green">💰</div>
+          <h3>Pricing</h3>
+          <p>Intelligent pricing models with cost analysis, competitive benchmarking, and ROI calculations for optimal positioning.</p>
+          <div class="form-group">
+            <label class="form-label">Contract Value Range</label>
+            <select class="form-input form-select">
+              <option>$100K - $1M</option>
+              <option>$1M - $10M</option>
+              <option>$10M - $100M</option>
+              <option>$100M+</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Calculate Pricing</button>
+        </div>
+
+        <!-- Resumes -->
+        <div class="feature-card card-interactive" data-feature="resumes">
+          <div class="card-icon blue">👤</div>
+          <h3>Resumes</h3>
+          <p>AI-optimized resumes and key personnel profiles matched to specific requirements and evaluation criteria.</p>
+          <div class="upload-area" id="resume-upload">
+            <div class="upload-icon">👤</div>
+            <p>Upload team resumes for optimization</p>
+            <input type="file" multiple accept=".pdf,.docx" style="display: none;">
+          </div>
+          <button class="btn btn-primary">Optimize Resumes</button>
+        </div>
+
+        <!-- Past Performance -->
+        <div class="feature-card card-interactive" data-feature="performance">
+          <div class="card-icon orange">🏆</div>
+          <h3>Past Performance</h3>
+          <p>Automated past performance database with relevance scoring and performance narrative generation.</p>
+          <div class="form-group">
+            <label class="form-label">Contract Similarity</label>
+            <select class="form-input form-select">
+              <option>Exact Match (same NAICS)</option>
+              <option>Similar Scope & Size</option>
+              <option>Related Technology</option>
+              <option>All Contracts</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Find Relevant Experience</button>
+        </div>
+
+        <!-- Whitepapers -->
+        <div class="feature-card card-interactive" data-feature="whitepapers">
+          <div class="card-icon gray">📰</div>
+          <h3>Whitepapers</h3>
+          <p>Technical thought leadership content generation with industry insights and competitive differentiation.</p>
+          <div class="form-group">
+            <label class="form-label">Topic Focus</label>
+            <select class="form-input form-select">
+              <option>Emerging Technologies</option>
+              <option>Best Practices</option>
+              <option>Case Studies</option>
+              <option>Industry Trends</option>
+            </select>
+          </div>
+          <button class="btn btn-primary">Generate Content</button>
+        </div>
+
+        <!-- Partners/Subs -->
+        <div class="feature-card card-interactive" data-feature="partners">
+          <div class="card-icon pink">🤝</div>
+          <h3>Partners / Subs</h3>
+          <p>Teaming partner recommendations with capability gap analysis and subcontractor optimization.</p>
+          <div class="form-group">
+            <label class="form-label">Capability Gaps</label>
+            <input type="text" class="form-input" placeholder="e.g., Cybersecurity, Cloud Architecture">
+          </div>
+          <button class="btn btn-primary">Find Partners</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Central Control Hub -->
+    <section id="get-started" class="workflow-section">
+      <div class="feature-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-icon blue" style="margin: 0 auto 2rem;">🎯</div>
+        <h2 style="text-align: center; margin-bottom: 2rem;">Proposal Generation Command Center</h2>
+        
+        <!-- File Upload Section -->
+        <div class="form-group">
+          <label class="form-label">Primary Requirements Document (PWS/SOW) *</label>
+          <div class="upload-area" id="main-upload">
+            <div class="upload-icon">📄</div>
+            <p><strong>Drop your PWS/SOW here</strong> or click to browse</p>
+            <p style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.5rem;">
+              Supports PDF, DOCX, TXT, MD files up to 50MB
+            </p>
+            <input type="file" id="pws-file" accept=".pdf,.docx,.txt,.md" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Optional RFP -->
+        <div class="form-group">
+          <label class="form-label">RFP/Additional Documents (Optional)</label>
+          <div class="upload-area" id="rfp-upload">
+            <div class="upload-icon">📋</div>
+            <p>Additional context documents</p>
+            <input type="file" id="rfp-file" accept=".pdf,.docx,.txt,.md,.yaml" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Configuration Options -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0;">
+          <div class="form-group">
+            <label class="form-label">AI Model</label>
+            <select class="form-input form-select" id="model-select">
+              <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended)</option>
+              <option value="gpt-4o-mini">GPT-4o Mini</option>
+              <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fast)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Content Quality Level</label>
+            <select class="form-input form-select" id="quality-level">
+              <option value="EXECUTIVE">Executive (Fortune 500)</option>
+              <option value="ADVANCED">Advanced (Strategic)</option>
+              <option value="ENHANCED">Enhanced (Business)</option>
+              <option value="BASIC">Basic (Standard)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Brand Customization -->
+        <details style="margin: 2rem 0;">
+          <summary style="font-weight: 600; cursor: pointer; margin-bottom: 1rem;">Brand Customization (Optional)</summary>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-input" id="company-name" placeholder="Your Company Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline</label>
+              <input type="text" class="form-input" id="company-tagline" placeholder="Your Company Tagline">
+            </div>
+          </div>
+        </details>
+
+        <!-- Generate Button -->
+        <button class="btn btn-primary" id="generate-btn" style="width: 100%; padding: 1.25rem; font-size: 1.125rem; margin-top: 1rem;">
+          🚀 Generate Proposal
+        </button>
+
+        <!-- Progress Section -->
+        <div class="progress-container" id="progress-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4>Processing Your Proposal...</h4>
+            <span id="progress-percentage">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <p id="progress-status">Initializing...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" style="display: none; margin-top: 2rem;">
+          <h3 style="margin-bottom: 1.5rem;">🎉 Your Proposal is Ready!</h3>
+          <div class="results-grid" id="results-grid">
+            <!-- Results will be populated here -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- JavaScript for Interactivity -->
+  <script src="/static/app_enhanced.js"></script>
+  <script>
+    // Additional inline interactions for immediate feedback
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add enhanced hover effects to cards
+      document.querySelectorAll('.feature-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-12px) scale(1.02)';
+          this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+          this.style.boxShadow = 'var(--shadow-lg)';
+        });
+      });
+
+      // Smooth scrolling with offset for fixed header
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            const headerOffset = 80;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      // Add loading states to buttons
+      document.querySelectorAll('.btn').forEach(btn => {
+        if (btn.id !== 'generate-btn') { // Skip main generate button
+          btn.addEventListener('click', function() {
+            const originalText = this.innerHTML;
+            this.innerHTML = '⏳ Loading...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+              this.innerHTML = originalText;
+              this.disabled = false;
+            }, 2000);
+          });
+        }
+      });
+
+      // Add parallax effect to hero section
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.hero');
+        if (parallax) {
+          const speed = scrolled * 0.2;
+          parallax.style.transform = `translateY(${speed}px)`;
+        }
+      });
+
+      // Add typing animation to hero text
+      const heroTitle = document.querySelector('.hero h1');
+      if (heroTitle) {
+        const text = heroTitle.textContent;
+        heroTitle.textContent = '';
+        let i = 0;
+        
+        const typeWriter = () => {
+          if (i < text.length) {
+            heroTitle.textContent += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 100);
+          }
+        };
+        
+        setTimeout(typeWriter, 500);
+      }
+
+      // Add floating animation to upload areas
+      document.querySelectorAll('.upload-area').forEach((area, index) => {
+        area.style.animation = `float 3s ease-in-out infinite`;
+        area.style.animationDelay = `${index * 0.5}s`;
+      });
+
+      // Add success feedback for form interactions
+      document.querySelectorAll('.form-input, .form-select').forEach(input => {
+        input.addEventListener('change', function() {
+          this.style.borderColor = 'var(--success-green)';
+          this.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+          
+          setTimeout(() => {
+            this.style.borderColor = 'var(--gray-300)';
+            this.style.boxShadow = 'none';
+          }, 1000);
+        });
+      });
+    });
+
+    // Add floating animation keyframes
+    const floatAnimation = `
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+      
+      .upload-area:hover {
+        animation: pulse 1s ease-in-out infinite;
+      }
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = floatAnimation;
+    document.head.appendChild(style);
+
+  </script>
+
+</body>
+</html>

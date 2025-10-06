@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "source": "/Users/Dell/Desktop/proposal-bot/web/outputs/20251006-144746-9d27c307/README.md"
+  },
+  "shalls": [
+    {
+      "id": "f349ac1c80",
+      "section": "",
+      "text": "- PWS parsing → Requirements graph (*shall* extraction)",
+      "priority": null,
+      "citations": []
+    }
+  ],
+  "edges": []
+}
